@@ -1,0 +1,115 @@
+/* src/styles/Navbar.css */
+
+.navbar {
+    background-color: #ffffff;
+    border-bottom: 1px solid #EEEEEE;
+    padding: 10px 0;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+}
+
+.logo-icon {
+    background: #000000;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.logo-text {
+    font-size: 20px;
+    font-weight: 800;
+    color: #000000;
+}
+
+.user-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.user-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: #000000;
+}
+
+.logout-btn {
+    background: #F9F9F9;
+    border: 1px solid #EEEEEE;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #000000;
+}
+
+/* Secondary Navigation / Tabs */
+.sub-nav {
+    background: #F9F9F9;
+    padding: 15px 0;
+    border-bottom: 1px solid #EEEEEE;
+}
+
+.sub-nav-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    gap: 15px;
+}
+
+.nav-tab {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 20px;
+    background: #ffffff;
+    border-radius: 8px;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 600;
+    color: #000000;
+    transition: all 0.2s;
+    border: 1px solid #EEEEEE;
+}
+
+.nav-tab:hover {
+    background: #F9F9F9;
+}
+
+.nav-tab.active {
+    background: #000000;
+    color: #ffffff;
+    border-color: #000000;
+}
+
+.nav-tab.active .tab-icon {
+    color: #ffffff;
+}
+
+.tab-icon {
+    color: #000000;
+}
