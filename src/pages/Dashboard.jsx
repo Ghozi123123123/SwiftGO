@@ -33,8 +33,15 @@ const Dashboard = () => {
     const prosesCount = orders.filter(order => order.status === 'Proses').length;
     const selesaiCount = orders.filter(order => order.status === 'Selesai').length;
 
+    // Calculate total revenue from all orders
+    const totalRevenue = orders.reduce((sum, order) => {
+        const amount = parseInt(order.amount.replace(/[^0-9]/g, '')) || 0;
+        return sum + amount;
+    }, 0);
+
     const balanceStats = [
         { label: 'Saldo Anda', value: `Rp ${balance.toLocaleString()}`, icon: <Wallet size={20} />, color: '#c41e1e', isBalance: true },
+        { label: 'Total Pendapatan', value: `Rp ${totalRevenue.toLocaleString()}`, icon: <TrendingUp size={20} />, color: '#16a34a' },
     ];
 
     const otherStats = [
@@ -67,7 +74,7 @@ const Dashboard = () => {
             {/* Balance Card - Full Width */}
             <div className="balance-stats-grid">
                 {balanceStats.map((stat, index) => (
-                    <div key={index} className="stat-card balance-card">
+                    <div key={index} className={`stat-card balance-card ${stat.isBalance ? 'balance-card-red' : ''}`}>
                         <div className="stat-icon" style={{ backgroundColor: `${stat.color}15`, color: stat.color }}>
                             {stat.icon}
                         </div>
@@ -75,11 +82,13 @@ const Dashboard = () => {
                             <span className="stat-label">{stat.label}</span>
                             <h2 className="stat-value">{stat.value}</h2>
                         </div>
-                        <div className="balance-actions">
-                            <button className="add-balance-btn" onClick={() => setIsModalOpen(true)} title="Top Up">
-                                <Plus size={20} />
-                            </button>
-                        </div>
+                        {stat.isBalance && (
+                            <div className="balance-actions">
+                                <button className="add-balance-btn" onClick={() => setIsModalOpen(true)} title="Top Up">
+                                    <Plus size={20} />
+                                </button>
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>

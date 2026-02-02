@@ -96,7 +96,7 @@
 
 .balance-stats-grid {
     display: grid;
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
     gap: 20px;
     margin-bottom: 20px;
 }
@@ -427,20 +427,20 @@
     }
 }
 
-/* Balance Card Styling */
-.balance-card {
-    background: #c41e1e;
-    color: white;
-    border: none;
-    box-shadow: 0 10px 15px -3px rgba(196, 30, 30, 0.2), 0 4px 6px -2px rgba(196, 30, 30, 0.1);
+/* Premium Balance Card (Red Theme) */
+.balance-card-red {
+    background: #c41e1e !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 10px 15px -3px rgba(196, 30, 30, 0.2), 0 4px 6px -2px rgba(196, 30, 30, 0.1) !important;
 }
 
-.balance-card .stat-label,
-.balance-card .stat-value {
-    color: white;
+.balance-card-red .stat-label,
+.balance-card-red .stat-value {
+    color: white !important;
 }
 
-.balance-card .stat-icon {
+.balance-card-red .stat-icon {
     background: rgba(255, 255, 255, 0.2) !important;
     color: white !important;
 }
@@ -462,12 +462,12 @@
     transition: all 0.2s;
 }
 
-.balance-card .add-balance-btn {
+.balance-card-red .add-balance-btn {
     background: white;
     color: #c41e1e;
 }
 
-.balance-card .add-balance-btn:hover {
+.balance-card-red .add-balance-btn:hover {
     background: #f3f4f6;
     transform: translateY(-1px);
 }

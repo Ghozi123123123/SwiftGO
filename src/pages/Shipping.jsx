@@ -66,7 +66,8 @@ const Shipping = () => {
 
         // Cost Calculation
         const base = rates?.baseRate || 10000;
-        const weightFee = vol * (rates?.ratePerKg || 10);
+        const weight = parseFloat(formData.weight) || 0;
+        const weightFee = weight * (rates?.ratePerKg || 5000);
         let serviceFee = 0;
         if (formData.service === 'Express') serviceFee = rates?.expressFee || 25000;
         else if (formData.service === 'Same Day') serviceFee = rates?.sameDayFee || 50000;
@@ -88,7 +89,7 @@ const Shipping = () => {
             locationFee,
             total: base + weightFee + serviceFee + locationFee
         });
-    }, [formData.length, formData.width, formData.height, formData.service, formData.senderCity, formData.receiverCity, formData.senderProvince, formData.receiverProvince]);
+    }, [formData.length, formData.width, formData.height, formData.weight, formData.service, formData.senderCity, formData.receiverCity, formData.senderProvince, formData.receiverProvince]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -298,8 +299,8 @@ const Shipping = () => {
                                 </div>
                             </div>
                         </div>
-                        <div className="volume-display">
-                            Volume: <strong>{volume.toLocaleString()} cm³</strong>
+                        <div className="volume-display" style={{ marginTop: '16px', padding: '12px', background: '#F9FAFB', borderRadius: '8px', fontSize: '14px', color: '#4B5563' }}>
+                            Total Volume: <strong>{volume.toLocaleString()} cm³</strong>
                         </div>
                     </div>
 
