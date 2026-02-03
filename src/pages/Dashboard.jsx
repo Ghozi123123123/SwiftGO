@@ -6,7 +6,7 @@ import {
     TrendingUp,
     Clock,
     Search,
-    Bell,
+
     ArrowUpRight,
     ArrowDownRight,
     Printer,
@@ -27,6 +27,7 @@ const Dashboard = () => {
     const { orders, balance, addBalance } = useLogistics();
     const [isModalOpen, setIsModalOpen] = React.useState(false);
     const [topUpAmount, setTopUpAmount] = React.useState('');
+    const [searchQuery, setSearchQuery] = React.useState('');
 
     // Calculate status counts
     const pendingCount = orders.filter(order => order.status === 'Pending').length;
@@ -51,7 +52,12 @@ const Dashboard = () => {
         { label: 'Selesai', value: selesaiCount.toLocaleString(), icon: <CheckCircle size={20} />, color: '#16a34a' },
     ];
 
-    const recentOrders = orders.slice(0, 5);
+    const recentOrders = orders
+        .filter(order =>
+            order.orderNo.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            order.receiverName.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+        .slice(0, 5);
 
     return (
         <div className="dashboard-container">
@@ -60,14 +66,6 @@ const Dashboard = () => {
                     <h1>Dashboard Overview</h1>
                 </div>
                 <div className="header-actions">
-                    <div className="search-bar">
-                        <Search size={18} />
-                        <input type="text" placeholder="Cari resi atau pesanan..." />
-                    </div>
-                    <button className="icon-btn">
-                        <Bell size={20} />
-                        <span className="badge"></span>
-                    </button>
                 </div>
             </header>
 
@@ -157,7 +155,12 @@ const Dashboard = () => {
                             { label: 'Express', key: 'Express', icon: <Zap size={20} />, color: '#2563eb' },
                             { label: 'Same Day', key: 'Same Day', icon: <Rocket size={20} />, color: '#16a34a' }
                         ].map((method, index) => {
-                            const count = orders.filter(o => o.service === method.key).length;
+                            const methodOrders = orders.filter(o => o.service === method.key);
+                            const count = methodOrders.length;
+                            const totalAmount = methodOrders.reduce((sum, o) => {
+                                const amount = parseInt(o.amount.replace(/[^0-9]/g, '')) || 0;
+                                return sum + amount;
+                            }, 0);
                             const percentage = orders.length > 0 ? (count / orders.length) * 100 : 0;
                             return (
                                 <div key={index} className="method-item">
@@ -165,8 +168,11 @@ const Dashboard = () => {
                                         <div className="method-icon" style={{ backgroundColor: `${method.color}15`, color: method.color }}>
                                             {method.icon}
                                         </div>
-                                        <div className="method-details">
+                                        <div className="method-details" style={{ flex: 1 }}>
                                             <span className="method-name">{method.label}</span>
+                                            <div style={{ fontSize: '13px', color: '#16a34a', fontWeight: 'bold', marginTop: '2px' }}>
+                                                Rp {totalAmount.toLocaleString()}
+                                            </div>
                                         </div>
                                         <span className="method-unit">{count} Pesanan</span>
                                     </div>
@@ -187,7 +193,33 @@ const Dashboard = () => {
 
                 <div className="content-card recent-activity">
                     <div className="card-header">
-                        <h3>Pesanan Terbaru</h3>
+                        <div className="header-title-group" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                            <h3>Pesanan Terbaru</h3>
+                            <div className="search-bar-small" style={{
+                                position: 'relative',
+                                display: 'flex',
+                                alignItems: 'center',
+                                background: '#f3f4f6',
+                                padding: '6px 12px',
+                                borderRadius: '8px'
+                            }}>
+                                <Search size={16} color="#6b7280" />
+                                <input
+                                    type="text"
+                                    placeholder="Cari resi..."
+                                    value={searchQuery}
+                                    onChange={(e) => setSearchQuery(e.target.value)}
+                                    style={{
+                                        border: 'none',
+                                        background: 'transparent',
+                                        marginLeft: '8px',
+                                        outline: 'none',
+                                        fontSize: '14px',
+                                        width: '150px'
+                                    }}
+                                />
+                            </div>
+                        </div>
                         <button
                             className="text-btn"
                             onClick={() => navigate('/app/orders')}

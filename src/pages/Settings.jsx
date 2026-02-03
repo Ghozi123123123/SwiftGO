@@ -67,6 +67,18 @@ const Settings = () => {
                                     />
                                 </div>
                             </div>
+                            <div className="input-group">
+                                <label>Diskon Loyalitas (%)</label>
+                                <div className="input-wrapper">
+                                    <span className="prefix">%</span>
+                                    <input
+                                        type="number"
+                                        name="loyaltyDiscount"
+                                        value={formData.loyaltyDiscount}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
 

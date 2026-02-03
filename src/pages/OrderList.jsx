@@ -77,6 +77,7 @@ const OrderList = () => {
                             <tr>
                                 <th>Tgl</th>
                                 <th>No. Resi</th>
+                                <th>Pengirim</th>
                                 <th>Penerima</th>
                                 <th>Tujuan</th>
                                 <th>Status</th>
@@ -89,6 +90,7 @@ const OrderList = () => {
                                 <tr key={index} onClick={() => handleRowClick(order)} style={{ cursor: 'pointer' }}>
                                     <td className="order-date">{order.date}</td>
                                     <td className="order-no">{order.orderNo}</td>
+                                    <td>{order.senderName}</td>
                                     <td>{order.receiverName}</td>
                                     <td>{order.destination}</td>
                                     <td>
@@ -138,7 +140,7 @@ const OrderList = () => {
                             ))}
                             {orders.length === 0 && (
                                 <tr>
-                                    <td colSpan="7" className="text-center">Belum ada riwayat pengiriman.</td>
+                                    <td colSpan="8" className="text-center">Belum ada riwayat pengiriman.</td>
                                 </tr>
                             )}
                         </tbody>
@@ -155,7 +157,7 @@ const OrderList = () => {
                     <div className="shipment-modal-overlay" onClick={() => setIsModalOpen(false)}>
                         <div className="shipment-modal-content" onClick={(e) => e.stopPropagation()}>
                             <div className="shipment-modal-header">
-                                <h3>Status Pengiriman</h3>
+                                <h3>Status Pengiriman - {selectedOrder.orderNo}</h3>
                             </div>
 
                             <div className="progress-tracker">
@@ -164,98 +166,166 @@ const OrderList = () => {
                                         <Package size={20} />
                                         {step >= 1 && <div className="step-check"><Check size={10} strokeWidth={4} /></div>}
                                     </div>
-                                    <span className="step-label">Paket sudah diproses</span>
+                                    <span className="step-label">Paket diproses</span>
                                 </div>
                                 <div className={`progress-step ${step >= 2 ? 'active' : ''} ${step === 2 ? 'current' : ''}`}>
                                     <div className="step-icon-wrapper">
                                         <Truck size={20} />
                                         {step >= 2 && <div className="step-check"><Check size={10} strokeWidth={4} /></div>}
                                     </div>
-                                    <span className="step-label">Berangkat dari kota asal</span>
+                                    <span className="step-label">Berangkat</span>
                                 </div>
                                 <div className={`progress-step ${step >= 3 ? 'active' : ''} ${step === 3 ? 'current' : ''}`}>
                                     <div className="step-icon-wrapper">
                                         <Navigation size={20} />
                                         {step >= 3 && <div className="step-check"><Check size={10} strokeWidth={4} /></div>}
                                     </div>
-                                    <span className="step-label">Pengantaran ke alamat</span>
+                                    <span className="step-label">Luar Kota</span>
                                 </div>
                                 <div className={`progress-step ${step >= 4 ? 'active' : ''} ${step === 4 ? 'current' : ''}`}>
                                     <div className="step-icon-wrapper">
                                         <User size={20} />
                                         {step >= 4 && <div className="step-check"><Check size={10} strokeWidth={4} /></div>}
                                     </div>
-                                    <span className="step-label">Sampai di tujuan</span>
+                                    <span className="step-label">Diterima</span>
                                 </div>
                             </div>
 
-                            <div className="timeline-details">
-                                {step >= 1 && (
-                                    <div className="timeline-row">
-                                        <div className="timeline-date">10:00</div>
-                                        <div className="timeline-marker active"></div>
-                                        <div className="timeline-info">
-                                            <h4>Gudang Sortir Jakarta Pusat</h4>
-                                            <p>Paket telah sampai di pusat sortir Jakarta Pusat.</p>
-                                        </div>
-                                    </div>
-                                )}
-                                {step >= 2 && (
-                                    <div className="timeline-row">
-                                        <div className="timeline-date">
-                                            <div>{selectedOrder.date}</div>
-                                            <div>10:00</div>
-                                        </div>
-                                        <div className="timeline-marker active"></div>
-                                        <div className="timeline-info">
-                                            <h4>Berangkat Dari Jakarta</h4>
-                                            <p>Paketmu sedang dalam perjalanan menuju kota tujuan.</p>
-                                        </div>
-                                    </div>
-                                )}
-                                {step >= 3 && (
-                                    <div className="timeline-row">
-                                        <div className="timeline-date">
-                                            <div>{selectedOrder.date}</div>
-                                            <div>02:00</div>
-                                        </div>
-                                        <div className="timeline-marker active"></div>
-                                        <div className="timeline-info">
-                                            <h4>Kurir Menjemput</h4>
-                                            <p>Kurir sedang menjemput paketmu di hub terdekat.</p>
-                                        </div>
-                                    </div>
-                                )}
-                                {step >= 4 && (
-                                    <div className="timeline-row">
-                                        <div className="timeline-date">
-                                            <div>{selectedOrder.date}</div>
-                                            <div>15:30</div>
-                                        </div>
-                                        <div className="timeline-marker active"></div>
-                                        <div className="timeline-info">
-                                            <h4>Paket Diterima</h4>
-                                            <p>Paket telah sampai di tujuan dan diterima oleh penghuni alamat.</p>
-                                        </div>
-                                    </div>
-                                )}
+                            <div className="modal-grid">
+                                <div className="modal-left-col">
+                                    <div className="timeline-details">
+                                        {step >= 1 && (
+                                            <div className="timeline-row">
+                                                <div className="timeline-date">10:00</div>
+                                                <div className="timeline-marker active"></div>
+                                                <div className="timeline-info">
+                                                    <div className="timeline-icon-box" style={{ color: '#c41e1e', marginBottom: '8px' }}>
+                                                        <Package size={18} />
+                                                    </div>
+                                                    <h4>Gudang Sortir {selectedOrder.senderCity || 'Jakarta Pusat'}</h4>
+                                                    <p>Paket telah sampai di pusat sortir {selectedOrder.senderCity || 'Jakarta Pusat'}.</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {step >= 2 && (
+                                            <div className="timeline-row">
+                                                <div className="timeline-date">
+                                                    <div>{selectedOrder.date}</div>
+                                                    <div>10:00</div>
+                                                </div>
+                                                <div className="timeline-marker active"></div>
+                                                <div className="timeline-info">
+                                                    <div className="timeline-icon-box" style={{ color: '#c41e1e', marginBottom: '8px' }}>
+                                                        <Truck size={18} />
+                                                    </div>
+                                                    <h4>Berangkat Dari {selectedOrder.senderCity || 'Jakarta'}</h4>
+                                                    <p>Paketmu sedang dalam perjalanan menuju kota tujuan.</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {step >= 3 && (
+                                            <div className="timeline-row">
+                                                <div className="timeline-date">
+                                                    <div>{selectedOrder.date}</div>
+                                                    <div>02:00</div>
+                                                </div>
+                                                <div className="timeline-marker active"></div>
+                                                <div className="timeline-info">
+                                                    <div className="timeline-icon-box" style={{ color: '#c41e1e', marginBottom: '8px' }}>
+                                                        <Navigation size={18} />
+                                                    </div>
+                                                    <h4>Kurir Menjemput</h4>
+                                                    <p>Kurir sedang menjemput paketmu di hub terdekat.</p>
+                                                </div>
+                                            </div>
+                                        )}
+                                        {step >= 4 && (
+                                            <div className="timeline-row">
+                                                <div className="timeline-date">
+                                                    <div>{selectedOrder.date}</div>
+                                                    <div>15:30</div>
+                                                </div>
+                                                <div className="timeline-marker active"></div>
+                                                <div className="timeline-info">
+                                                    <div className="timeline-icon-box" style={{ color: '#c41e1e', marginBottom: '8px' }}>
+                                                        <User size={18} />
+                                                    </div>
+                                                    <h4>Paket Diterima</h4>
+                                                    <p>Paket telah sampai di tujuan dan diterima oleh penghuni alamat.</p>
+                                                </div>
+                                            </div>
+                                        )}
 
-                                <div className="timeline-row">
-                                    <div className="timeline-date">{selectedOrder.date}</div>
-                                    <div className="timeline-marker active"></div>
-                                    <div className="timeline-info">
-                                        <h4>Penjadwalan</h4>
-                                        <p>Penjadwalan penjemputan paket</p>
+                                        <div className="timeline-row">
+                                            <div className="timeline-date">{selectedOrder.date}</div>
+                                            <div className="timeline-marker active"></div>
+                                            <div className="timeline-info">
+                                                <div className="timeline-icon-box" style={{ color: '#c41e1e', marginBottom: '8px' }}>
+                                                    <Check size={18} />
+                                                </div>
+                                                <h4>Penjadwalan</h4>
+                                                <p>Penjadwalan penjemputan paket</p>
+                                            </div>
+                                        </div>
                                     </div>
+                                </div>
+
+                                <div className="modal-right-col">
+                                    <div className="modal-info-summary" style={{ padding: '20px', background: '#F9FAFB', borderRadius: '16px', marginBottom: '16px', border: '1px solid #E5E7EB', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                                        <div className="info-block">
+                                            <h4 style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '4px', textTransform: 'uppercase' }}>Pengirim</h4>
+                                            <p style={{ fontWeight: 'bold' }}>{selectedOrder.senderName || '-'}</p>
+                                        </div>
+                                        <div className="info-block">
+                                            <h4 style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '4px', textTransform: 'uppercase' }}>Penerima</h4>
+                                            <p style={{ fontWeight: 'bold' }}>{selectedOrder.receiverName || '-'}</p>
+                                        </div>
+                                    </div>
+
+                                    <div className="modal-product-details" style={{ padding: '20px', background: '#F9FAFB', borderRadius: '16px', border: '1px solid #E5E7EB' }}>
+                                        <h4 style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                            <Package size={16} color="#c41e1e" /> Detail Produk
+                                        </h4>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', fontSize: '14px' }}>
+                                            <div><span style={{ color: '#6B7280' }}>Nama Barang:</span> {selectedOrder.item || '-'}</div>
+                                            <div><span style={{ color: '#6B7280' }}>Kategori:</span> {selectedOrder.itemType || '-'}</div>
+                                            <div><span style={{ color: '#6B7280' }}>Berat:</span> {selectedOrder.weight || '0'} kg</div>
+                                            <div><span style={{ color: '#6B7280' }}>Dimensi:</span> {selectedOrder.length || 0}x{selectedOrder.width || 0}x{selectedOrder.height || 0} cm</div>
+                                        </div>
+                                    </div>
+
+                                    <button className="btn-print-large"
+                                        onClick={() => downloadReceipt(selectedOrder)}
+                                        style={{
+                                            width: '100%',
+                                            marginTop: '16px',
+                                            padding: '14px',
+                                            background: '#c41e1e',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '12px',
+                                            fontWeight: 'bold',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            justifyContent: 'center',
+                                            gap: '8px',
+                                            cursor: 'pointer',
+                                            boxShadow: '0 4px 12px rgba(196, 30, 30, 0.2)'
+                                        }}
+                                    >
+                                        <Printer size={18} /> Cetak Resi
+                                    </button>
                                 </div>
                             </div>
 
                             <button className="modal-footer-btn" onClick={() => setIsModalOpen(false)}>
-                                Sembunyikan Detali Status
+                                Sembunyikan Detail Status
                             </button>
-                            <button className="cancel-btn" onClick={handleCancelClick}>
-                                Batalkan Pengiriman
-                            </button>
+                            <div className="modal-actions" style={{ marginTop: '10px' }}>
+                                <button className="cancel-btn" onClick={handleCancelClick} style={{ width: '100%', marginTop: 0 }}>
+                                    Batalkan Pengiriman
+                                </button>
+                            </div>
                         </div>
                     </div>
                 );

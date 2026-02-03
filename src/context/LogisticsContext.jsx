@@ -8,7 +8,8 @@ const DEFAULT_RATES = {
     baseRate: 10000,
     ratePerKg: 5000,
     expressFee: 25000,
-    sameDayFee: 50000
+    sameDayFee: 50000,
+    loyaltyDiscount: 10
 };
 
 export const LogisticsProvider = ({ children }) => {

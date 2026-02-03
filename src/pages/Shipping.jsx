@@ -6,7 +6,7 @@ import '../styles/Shipping.css';
 
 const Shipping = () => {
     const navigate = useNavigate();
-    const { addOrder, rates, balance, deductBalance } = useLogistics();
+    const { addOrder, rates, balance, deductBalance, orders } = useLogistics();
     const [formData, setFormData] = useState({
         senderName: '',
         senderPhone: '',
@@ -41,6 +41,8 @@ const Shipping = () => {
         weightFee: 0,
         serviceFee: 0,
         locationFee: 0,
+        discount: 0,
+        discountAmount: 0,
         total: rates?.baseRate || 10000
     });
 
@@ -82,14 +84,31 @@ const Shipping = () => {
             }
         }
 
+        // Loyalty Discount Logic
+        let discount = 0;
+        let discountAmount = 0;
+        if (formData.senderName && formData.senderName.trim() !== '') {
+            const senderOrderCount = orders.filter(order =>
+                order.senderName.toLowerCase() === formData.senderName.trim().toLowerCase()
+            ).length;
+
+            if (senderOrderCount > 0 && (senderOrderCount + 1) % 5 === 0) {
+                discount = rates?.loyaltyDiscount || 0;
+                const subT = base + weightFee + serviceFee + locationFee;
+                discountAmount = (subT * discount) / 100;
+            }
+        }
+
         setCosts({
             base,
             weightFee,
             serviceFee,
             locationFee,
-            total: base + weightFee + serviceFee + locationFee
+            discount,
+            discountAmount,
+            total: base + weightFee + serviceFee + locationFee - discountAmount
         });
-    }, [formData.length, formData.width, formData.height, formData.weight, formData.service, formData.senderCity, formData.receiverCity, formData.senderProvince, formData.receiverProvince]);
+    }, [formData.length, formData.width, formData.height, formData.weight, formData.service, formData.senderCity, formData.receiverCity, formData.senderProvince, formData.receiverProvince, formData.senderName, rates, orders]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -139,7 +158,11 @@ const Shipping = () => {
             date: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
             amount: `Rp ${costs.total.toLocaleString()}`,
             item: formData.itemName,
+            itemType: formData.itemType,
             weight: formData.weight,
+            length: formData.length,
+            width: formData.width,
+            height: formData.height,
             service: formData.service,
             payment: formData.payment
         };
@@ -179,10 +202,6 @@ const Shipping = () => {
                                 <label>No. Telepon</label>
                                 <input type="text" name="senderPhone" value={formData.senderPhone} onChange={handleChange} className="form-input" placeholder="08xxxxxxxxxx" />
                             </div>
-                            <div className="form-group full-width">
-                                <label>Alamat Lengkap</label>
-                                <textarea name="senderAddress" value={formData.senderAddress} onChange={handleChange} className="form-textarea" placeholder="Jl. Contoh No. 123, RT/RW"></textarea>
-                            </div>
                             <div className="form-group">
                                 <label>Provinsi</label>
                                 <select name="senderProvince" value={formData.senderProvince} onChange={handleChange} className="form-select">
@@ -206,6 +225,10 @@ const Shipping = () => {
                                 <label>Kode Pos</label>
                                 <input type="text" name="senderPostal" value={formData.senderPostal} onChange={handleChange} className="form-input" placeholder="Kode Pos" />
                             </div>
+                            <div className="form-group full-width">
+                                <label>Alamat Lengkap</label>
+                                <textarea name="senderAddress" value={formData.senderAddress} onChange={handleChange} className="form-textarea" placeholder="Jl. Contoh No. 123, RT/RW"></textarea>
+                            </div>
                         </div>
                     </div>
 
@@ -223,10 +246,6 @@ const Shipping = () => {
                             <div className="form-group">
                                 <label>No. Telepon</label>
                                 <input type="text" name="receiverPhone" value={formData.receiverPhone} onChange={handleChange} className="form-input" placeholder="08xxxxxxxxxx" />
-                            </div>
-                            <div className="form-group full-width">
-                                <label>Alamat Lengkap</label>
-                                <textarea name="receiverAddress" value={formData.receiverAddress} onChange={handleChange} className="form-textarea" placeholder="Jl. Contoh No. 123, RT/RW"></textarea>
                             </div>
                             <div className="form-group">
                                 <label>Provinsi</label>
@@ -250,6 +269,10 @@ const Shipping = () => {
                             <div className="form-group">
                                 <label>Kode Pos</label>
                                 <input type="text" name="receiverPostal" value={formData.receiverPostal} onChange={handleChange} className="form-input" placeholder="Kode Pos" />
+                            </div>
+                            <div className="form-group full-width">
+                                <label>Alamat Lengkap</label>
+                                <textarea name="receiverAddress" value={formData.receiverAddress} onChange={handleChange} className="form-textarea" placeholder="Jl. Contoh No. 123, RT/RW"></textarea>
                             </div>
                         </div>
                     </div>
@@ -380,6 +403,12 @@ const Shipping = () => {
                                 <span>Ongkir</span>
                                 <span>Rp {costs.locationFee.toLocaleString()}</span>
                             </div>
+                            {costs.discount > 0 && (
+                                <div className="cost-item discount" style={{ color: '#059669' }}>
+                                    <span>Diskon Loyalitas ({costs.discount}%)</span>
+                                    <span>-Rp {costs.discountAmount.toLocaleString()}</span>
+                                </div>
+                            )}
                             <div className="cost-divider"></div>
                             <div className="cost-item subtotal">
                                 <span>Subtotal</span>
