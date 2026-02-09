@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
     Printer,
@@ -9,29 +9,63 @@ import {
     Truck,
     MapPin,
     User,
-    Navigation
+    Navigation,
+    Eye,
+    Download,
+    MoreVertical,
+    Copy,
+    MessageCircle,
+    ArrowUpCircle,
+    ArrowDownCircle,
+    ExternalLink,
+    Compass,
+    CheckCircle2,
+    ChevronRight,
+    MapPinned
 } from 'lucide-react';
 import { useLogistics } from '../context/LogisticsContext';
-import { downloadReceipt } from '../services/receiptUtils';
+import { downloadReceipt, generateReceiptCanvas, printReceipt } from '../services/receiptUtils';
 import '../styles/OrderList.css';
 import '../styles/ShipmentModal.css';
 
 const OrderList = () => {
-    const { orders, deleteOrder, updateOrderStatus } = useLogistics();
+    const { orders, deleteOrder, updateOrderStatus, addBalance, showNotification, user } = useLogistics();
     const navigate = useNavigate();
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
+    const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
+    const [receiptCanvas, setReceiptCanvas] = useState(null);
+    const [isLoadingReceipt, setIsLoadingReceipt] = useState(false);
+    const [activeMenuIndex, setActiveMenuIndex] = useState(null);
+    const menuRef = useRef(null);
+
+    // Close menu when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (menuRef.current && !menuRef.current.contains(event.target)) {
+                setActiveMenuIndex(null);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const handleRowClick = (order) => {
+        // Prevent clicking if a menu or button was clicked
         setSelectedOrder(order);
         setIsModalOpen(true);
     };
 
-    const handleStatusChange = (e, orderNo) => {
+    const toggleMenu = (e, index) => {
         e.stopPropagation();
-        const newStatus = e.target.value;
-        updateOrderStatus(orderNo, newStatus);
+        setActiveMenuIndex(activeMenuIndex === index ? null : index);
+    };
+
+    const handleCopyResi = (e, resi) => {
+        e.stopPropagation();
+        navigator.clipboard.writeText(resi);
+        showNotification(`Resi ${resi} berhasil disalin!`, 'success');
     };
 
     // Helper to determine active steps in the modal
@@ -45,13 +79,26 @@ const OrderList = () => {
         return states[status] || states['Pending'];
     };
 
-    const handleCancelClick = () => {
+    const handleCancelClick = (e, order) => {
+        e.stopPropagation();
+        setSelectedOrder(order);
         setIsCancelConfirmOpen(true);
+        setActiveMenuIndex(null);
     };
 
     const handleConfirmCancel = () => {
         if (selectedOrder) {
             updateOrderStatus(selectedOrder.orderNo, 'Dibatalkan');
+
+            // Refund balance if payment was Non-COD
+            if (selectedOrder.payment === 'Non-COD') {
+                const amount = parseInt(selectedOrder.amount.replace(/[^0-9]/g, '')) || 0;
+                addBalance(amount, `Refund Pembatalan ${selectedOrder.orderNo}`);
+                showNotification(`Pesanan dibatalkan. Saldo sebesar Rp ${amount.toLocaleString()} telah dikembalikan ke akun Anda.`, 'success');
+            } else {
+                showNotification('Pesanan telah dibatalkan.', 'info');
+            }
+
             setIsCancelConfirmOpen(false);
             setIsModalOpen(false);
         }
@@ -61,91 +108,146 @@ const OrderList = () => {
         setIsCancelConfirmOpen(false);
     };
 
+    const handleLihatStruk = async (e, order) => {
+        e.stopPropagation();
+        setIsLoadingReceipt(true);
+        setSelectedOrder(order);
+        setIsPreviewModalOpen(true);
+        setActiveMenuIndex(null);
+        try {
+            const canvas = await generateReceiptCanvas(order);
+            setReceiptCanvas(canvas.toDataURL());
+        } catch (error) {
+            console.error("Error generating receipt preview:", error);
+            setIsPreviewModalOpen(false);
+        } finally {
+            setIsLoadingReceipt(false);
+        }
+    };
+
     return (
         <div className="container order-list-page">
             <div className="page-header">
                 <h2>Riwayat Pengiriman</h2>
                 <div className="stats-mini">
-                    <span>Total: <strong>{orders.length}</strong></span>
+                    <span>Total Pesanan: <strong>{orders.length}</strong></span>
                 </div>
             </div>
 
-            <div className="table-card">
-                <div className="table-responsive">
-                    <table className="order-table">
-                        <thead>
-                            <tr>
-                                <th>Tgl</th>
-                                <th>No. Resi</th>
-                                <th>Pengirim</th>
-                                <th>Penerima</th>
-                                <th>Tujuan</th>
-                                <th>Status</th>
-                                <th>Total</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {orders.map((order, index) => (
-                                <tr key={index} onClick={() => handleRowClick(order)} style={{ cursor: 'pointer' }}>
-                                    <td className="order-date">{order.date}</td>
-                                    <td className="order-no">{order.orderNo}</td>
-                                    <td>{order.senderName}</td>
-                                    <td>{order.receiverName}</td>
-                                    <td>{order.destination}</td>
-                                    <td>
-                                        <select
-                                            className={`status-select ${order.status.toLowerCase().replace(' ', '-')}`}
-                                            value={order.status}
-                                            onClick={(e) => e.stopPropagation()}
-                                            onChange={(e) => handleStatusChange(e, order.orderNo)}
-                                        >
-                                            <option value="Pending">Pending</option>
-                                            <option value="Proses">Proses</option>
-                                            <option value="Selesai">Selesai</option>
-                                        </select>
-                                    </td>
-                                    <td className="order-amount">{order.amount}</td>
-                                    <td>
-                                        <div className="action-group" style={{ display: 'flex', gap: '8px' }}>
-                                            <button
-                                                className="btn-print"
-                                                onClick={(e) => {
-                                                    e.stopPropagation();
-                                                    downloadReceipt(order);
-                                                }}
-                                                title="Cetak Struk"
+            <div className="history-table-container">
+                <table className="history-table">
+                    <thead>
+                        <tr>
+                            <th width="40">NO</th>
+                            <th width="220">TRANSAKSI</th>
+                            <th>ALAMAT</th>
+                            <th width="240">EKSPEDISI & ONGKIR</th>
+                            <th width="200">ISI PAKET</th>
+                            <th width="120">AKSI</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {orders.map((order, index) => (
+                            <tr key={index}>
+                                <td className="row-no">{index + 1}</td>
+                                <td className="col-transaksi">
+                                    <div className="transaksi-main">
+                                        <div className="payment-label">
+                                            <span className={`payment-dot ${order.payment === 'COD' ? 'cod' : 'non-cod'}`}></span>
+                                            {order.payment || 'Non COD'}
+                                        </div>
+                                        <div className="order-no-text">{order.orderNo}</div>
+                                        <div className="order-time-text">{order.date} 09:52</div>
+                                        {user?.role === 'admin' ? (
+                                            <select
+                                                className={`status-select-minimal ${order.status.toLowerCase().replace(' ', '-')}`}
+                                                value={order.status}
+                                                onChange={(e) => updateOrderStatus(order.orderNo, e.target.value)}
+                                                onClick={(e) => e.stopPropagation()}
+                                                disabled={order.status === 'Dibatalkan'}
                                             >
-                                                <Printer size={14} />
-                                                Cetak
-                                            </button>
-                                            {order.status === 'Selesai' && (
-                                                <button
-                                                    className="btn-delete"
-                                                    onClick={(e) => {
-                                                        e.stopPropagation();
-                                                        if (window.confirm('Apakah Anda yakin ingin menghapus riwayat pengiriman ini?')) {
-                                                            deleteOrder(order.orderNo);
-                                                        }
-                                                    }}
-                                                    title="Hapus Riwayat"
-                                                >
-                                                    <Trash2 size={14} />
-                                                    Hapus
+                                                <option value="Pending">Pending</option>
+                                                <option value="Proses">Proses</option>
+                                                <option value="Selesai">Selesai</option>
+                                                {order.status === 'Dibatalkan' && <option value="Dibatalkan">Dibatalkan</option>}
+                                            </select>
+                                        ) : (
+                                            <span className={`status-pill ${order.status.toLowerCase().replace(' ', '-')}`}>
+                                                {order.status}
+                                            </span>
+                                        )}
+
+                                    </div>
+                                </td>
+                                <td className="col-alamat">
+                                    <div className="address-content">
+                                        <div className="address-line"><strong>{order.senderName} / {order.senderPhone?.slice(-4) || 'XXXX'}</strong></div>
+                                        <div className="address-line">{order.senderCity}, {order.senderProvince}</div>
+                                        <div className="address-line"><strong>{order.receiverName} / {order.receiverPhone?.slice(-4) || 'XXXX'}</strong></div>
+                                        <div className="address-line">{order.receiverCity}, {order.receiverProvince}</div>
+                                        <div className="address-line address-hint">{order.receiverAddress}</div>
+                                    </div>
+                                </td>
+                                <td className="col-ekspedisi">
+                                    <div className="ekspedisi-content">
+                                        <div className="exp-service-row">
+                                            <Truck size={14} className="icon-tiny" />
+                                            SwiftGo {order.service}
+                                        </div>
+                                        <div className="exp-amount-row">{order.amount}</div>
+                                        <div className="exp-cod-row">
+                                            {order.payment === 'COD' && `COD: ${order.amount}`}
+                                        </div>
+                                        <div className="exp-resi-row">
+                                            Resi: {order.status === 'Pending' ? '-' : `SW-RESI-${order.orderNo.split('-')[1]}`}
+                                            {order.status !== 'Pending' && (
+                                                <button className="btn-copy-mini" onClick={(e) => handleCopyResi(e, `SW-RESI-${order.orderNo.split('-')[1]}`)}>
+                                                    <Copy size={10} />
                                                 </button>
                                             )}
                                         </div>
-                                    </td>
-                                </tr>
-                            ))}
-                            {orders.length === 0 && (
-                                <tr>
-                                    <td colSpan="8" className="text-center">Belum ada riwayat pengiriman.</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                                        <div className="exp-btns">
+                                        </div>
+                                    </div>
+                                </td>
+                                <td className="col-paket">
+                                    <div className="paket-content">
+                                        <div className="item-name-row">{order.item}</div>
+                                        <div className="item-spec-row">Berat: {order.weight} kg</div>
+                                        <div className="item-spec-row">Dimensi: {order.length}x{order.width}x{order.height} cm</div>
+                                    </div>
+                                </td>
+                                <td className="col-aksi">
+                                    <div className="action-main">
+                                        <button className="btn-print-outline" onClick={(e) => { e.stopPropagation(); printReceipt(order); }}>
+                                            <Printer size={16} /> Print
+                                        </button>
+                                        <div className="more-menu-container" ref={activeMenuIndex === index ? menuRef : null}>
+                                            <button className="btn-more" onClick={(e) => toggleMenu(e, index)}>
+                                                <MoreVertical size={18} />
+                                            </button>
+                                            {activeMenuIndex === index && (
+                                                <div className="dropdown-menu">
+
+                                                    <button onClick={(e) => { e.stopPropagation(); window.open(`https://wa.me/${order.receiverPhone}`, '_blank'); }}><MessageCircle size={14} /> Hubungi Penerima</button>
+                                                    <button onClick={() => handleRowClick(order)}><Compass size={14} /> Tracking</button>
+                                                    {order.status !== 'Dibatalkan' && (
+                                                        <button className="btn-danger-text" onClick={(e) => handleCancelClick(e, order)}><X size={14} /> Batalkan</button>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                        {orders.length === 0 && (
+                            <tr>
+                                <td colSpan="6" className="empty-state">Belum ada riwayat pengiriman.</td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
             </div>
 
             {/* Shipment Status Modal */}
@@ -197,11 +299,10 @@ const OrderList = () => {
                                         {step >= 1 && (
                                             <div className="timeline-row">
                                                 <div className="timeline-date">10:00</div>
-                                                <div className="timeline-marker active"></div>
+                                                <div className="timeline-marker active">
+                                                    <Package size={14} />
+                                                </div>
                                                 <div className="timeline-info">
-                                                    <div className="timeline-icon-box" style={{ color: '#c41e1e', marginBottom: '8px' }}>
-                                                        <Package size={18} />
-                                                    </div>
                                                     <h4>Gudang Sortir {selectedOrder.senderCity || 'Jakarta Pusat'}</h4>
                                                     <p>Paket telah sampai di pusat sortir {selectedOrder.senderCity || 'Jakarta Pusat'}.</p>
                                                 </div>
@@ -213,11 +314,10 @@ const OrderList = () => {
                                                     <div>{selectedOrder.date}</div>
                                                     <div>10:00</div>
                                                 </div>
-                                                <div className="timeline-marker active"></div>
+                                                <div className="timeline-marker active">
+                                                    <Truck size={14} />
+                                                </div>
                                                 <div className="timeline-info">
-                                                    <div className="timeline-icon-box" style={{ color: '#c41e1e', marginBottom: '8px' }}>
-                                                        <Truck size={18} />
-                                                    </div>
                                                     <h4>Berangkat Dari {selectedOrder.senderCity || 'Jakarta'}</h4>
                                                     <p>Paketmu sedang dalam perjalanan menuju kota tujuan.</p>
                                                 </div>
@@ -229,11 +329,10 @@ const OrderList = () => {
                                                     <div>{selectedOrder.date}</div>
                                                     <div>02:00</div>
                                                 </div>
-                                                <div className="timeline-marker active"></div>
+                                                <div className="timeline-marker active">
+                                                    <Navigation size={14} />
+                                                </div>
                                                 <div className="timeline-info">
-                                                    <div className="timeline-icon-box" style={{ color: '#c41e1e', marginBottom: '8px' }}>
-                                                        <Navigation size={18} />
-                                                    </div>
                                                     <h4>Kurir Menjemput</h4>
                                                     <p>Kurir sedang menjemput paketmu di hub terdekat.</p>
                                                 </div>
@@ -245,11 +344,10 @@ const OrderList = () => {
                                                     <div>{selectedOrder.date}</div>
                                                     <div>15:30</div>
                                                 </div>
-                                                <div className="timeline-marker active"></div>
+                                                <div className="timeline-marker active">
+                                                    <User size={14} />
+                                                </div>
                                                 <div className="timeline-info">
-                                                    <div className="timeline-icon-box" style={{ color: '#c41e1e', marginBottom: '8px' }}>
-                                                        <User size={18} />
-                                                    </div>
                                                     <h4>Paket Diterima</h4>
                                                     <p>Paket telah sampai di tujuan dan diterima oleh penghuni alamat.</p>
                                                 </div>
@@ -258,11 +356,10 @@ const OrderList = () => {
 
                                         <div className="timeline-row">
                                             <div className="timeline-date">{selectedOrder.date}</div>
-                                            <div className="timeline-marker active"></div>
+                                            <div className="timeline-marker active">
+                                                <Check size={14} />
+                                            </div>
                                             <div className="timeline-info">
-                                                <div className="timeline-icon-box" style={{ color: '#c41e1e', marginBottom: '8px' }}>
-                                                    <Check size={18} />
-                                                </div>
                                                 <h4>Penjadwalan</h4>
                                                 <p>Penjadwalan penjemputan paket</p>
                                             </div>
@@ -271,49 +368,43 @@ const OrderList = () => {
                                 </div>
 
                                 <div className="modal-right-col">
-                                    <div className="modal-info-summary" style={{ padding: '20px', background: '#F9FAFB', borderRadius: '16px', marginBottom: '16px', border: '1px solid #E5E7EB', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                                    <div className="modal-info-summary">
                                         <div className="info-block">
-                                            <h4 style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '4px', textTransform: 'uppercase' }}>Pengirim</h4>
-                                            <p style={{ fontWeight: 'bold' }}>{selectedOrder.senderName || '-'}</p>
+                                            <h4>Pengirim</h4>
+                                            <p>{selectedOrder.senderName || '-'}</p>
                                         </div>
                                         <div className="info-block">
-                                            <h4 style={{ fontSize: '12px', color: '#9CA3AF', marginBottom: '4px', textTransform: 'uppercase' }}>Penerima</h4>
-                                            <p style={{ fontWeight: 'bold' }}>{selectedOrder.receiverName || '-'}</p>
+                                            <h4>Penerima</h4>
+                                            <p>{selectedOrder.receiverName || '-'}</p>
                                         </div>
                                     </div>
-
-                                    <div className="modal-product-details" style={{ padding: '20px', background: '#F9FAFB', borderRadius: '16px', border: '1px solid #E5E7EB' }}>
-                                        <h4 style={{ fontSize: '14px', fontWeight: 'bold', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <div className="modal-product-details">
+                                        <h4>
                                             <Package size={16} color="#c41e1e" /> Detail Produk
                                         </h4>
-                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px', fontSize: '14px' }}>
-                                            <div><span style={{ color: '#6B7280' }}>Nama Barang:</span> {selectedOrder.item || '-'}</div>
-                                            <div><span style={{ color: '#6B7280' }}>Kategori:</span> {selectedOrder.itemType || '-'}</div>
-                                            <div><span style={{ color: '#6B7280' }}>Berat:</span> {selectedOrder.weight || '0'} kg</div>
-                                            <div><span style={{ color: '#6B7280' }}>Dimensi:</span> {selectedOrder.length || 0}x{selectedOrder.width || 0}x{selectedOrder.height || 0} cm</div>
-                                        </div>
+                                        <table className="product-details-table">
+                                            <tbody>
+                                                <tr>
+                                                    <td>Nama Barang</td>
+                                                    <td>{selectedOrder.item || '-'}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Kategori</td>
+                                                    <td>{selectedOrder.itemType || '-'}</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Berat</td>
+                                                    <td>{selectedOrder.weight || '0'} kg</td>
+                                                </tr>
+                                                <tr>
+                                                    <td>Dimensi</td>
+                                                    <td>{selectedOrder.length || 0}x{selectedOrder.width || 0}x{selectedOrder.height || 0} cm</td>
+                                                </tr>
+                                            </tbody>
+                                        </table>
                                     </div>
-
-                                    <button className="btn-print-large"
-                                        onClick={() => downloadReceipt(selectedOrder)}
-                                        style={{
-                                            width: '100%',
-                                            marginTop: '16px',
-                                            padding: '14px',
-                                            background: '#c41e1e',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '12px',
-                                            fontWeight: 'bold',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            gap: '8px',
-                                            cursor: 'pointer',
-                                            boxShadow: '0 4px 12px rgba(196, 30, 30, 0.2)'
-                                        }}
-                                    >
-                                        <Printer size={18} /> Cetak Resi
+                                    <button className="btn-print-large" onClick={() => downloadReceipt(selectedOrder)}>
+                                        <Download size={18} /> Download Resi
                                     </button>
                                 </div>
                             </div>
@@ -340,6 +431,38 @@ const OrderList = () => {
                         <div className="confirmation-buttons">
                             <button className="btn-yes" onClick={handleConfirmCancel}>Iya</button>
                             <button className="btn-no" onClick={handleCancelNo}>Tidak</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Receipt Preview Modal */}
+            {isPreviewModalOpen && (
+                <div className="receipt-preview-overlay" onClick={closePreviewModal}>
+                    <div className="receipt-preview-content" onClick={(e) => e.stopPropagation()}>
+                        <div className="preview-header">
+                            <h3>Pratinjau Struk - {selectedOrder?.orderNo}</h3>
+                            <button className="close-preview" onClick={closePreviewModal}>
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="preview-body">
+                            {isLoadingReceipt ? (
+                                <div className="loading-preview">
+                                    <div className="spinner"></div>
+                                    <p>Menyiapkan struk...</p>
+                                </div>
+                            ) : (
+                                receiptCanvas && <img src={receiptCanvas} alt="Receipt Preview" />
+                            )}
+                        </div>
+                        <div className="preview-footer">
+                            <button className="btn-footer btn-download" onClick={() => downloadReceipt(selectedOrder)}>
+                                <Download size={18} /> Download
+                            </button>
+                            <button className="btn-footer btn-print" onClick={() => printReceipt(selectedOrder)}>
+                                <Printer size={18} /> Cetak
+                            </button>
                         </div>
                     </div>
                 </div>

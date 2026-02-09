@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, ShieldCheck, User as UserIcon } from 'lucide-react';
+import { useLogistics } from '../context/LogisticsContext';
 import '../styles/Login.css';
 
 const Login = () => {
     const navigate = useNavigate();
+    const { setUser } = useLogistics();
     const [showPassword, setShowPassword] = useState(false);
     const [formData, setFormData] = useState({
         username: '',
@@ -19,11 +21,21 @@ const Login = () => {
         }));
     };
 
+    const handleQuickLogin = (role) => {
+        const userData = role === 'admin'
+            ? { role: 'admin', name: 'Zian Admin', avatar: 'A' }
+            : { role: 'customer', name: 'ZaraRara', avatar: 'Z' };
+
+        setUser(userData);
+        navigate(role === 'admin' ? '/app' : '/app/tracking');
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
         // In a real app, perform authentication here.
-        // For now, simple navigation to the main application.
-        navigate('/app');
+        // For now, default to customer if logged in via form
+        setUser({ role: 'customer', name: 'ZaraRara', avatar: 'Z' });
+        navigate('/app/tracking');
     };
 
     return (
@@ -74,10 +86,37 @@ const Login = () => {
                         </div>
                     </div>
 
-                    <button type="submit" className="login-button">
-                        MASUK
-                    </button>
                 </form>
+
+                <div className="role-options">
+                    <button
+                        type="button"
+                        className="role-btn admin"
+                        onClick={() => handleQuickLogin('admin')}
+                    >
+                        <div className="role-icon-wrapper">
+                            <ShieldCheck size={20} />
+                        </div>
+                        <div className="role-btn-text">
+                            <span className="role-label">Masuk sebagai</span>
+                            <span className="role-name">Admin</span>
+                        </div>
+                    </button>
+
+                    <button
+                        type="button"
+                        className="role-btn customer"
+                        onClick={() => handleQuickLogin('customer')}
+                    >
+                        <div className="role-icon-wrapper">
+                            <UserIcon size={20} />
+                        </div>
+                        <div className="role-btn-text">
+                            <span className="role-label">Masuk sebagai</span>
+                            <span className="role-name">Pelanggan</span>
+                        </div>
+                    </button>
+                </div>
 
                 <div className="login-footer">
                     Belum punya akun?

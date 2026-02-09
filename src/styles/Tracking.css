@@ -1,0 +1,411 @@
+/* Tracking.css */
+.tracking-page {
+    padding: 24px;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.tracking-header {
+    margin-bottom: 32px;
+}
+
+.tracking-header h2 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.tracking-header p {
+    color: #6B7280;
+    font-size: 16px;
+}
+
+.tracking-search-container {
+    background: white;
+    padding: 32px;
+    border-radius: 24px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    margin-bottom: 32px;
+}
+
+.tracking-search-form {
+    display: flex;
+    gap: 16px;
+}
+
+.search-input-wrapper {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-icon {
+    position: absolute;
+    left: 16px;
+    color: #9CA3AF;
+}
+
+.search-input-wrapper input {
+    width: 100%;
+    padding: 16px 16px 16px 48px;
+    border-radius: 16px;
+    border: 2px solid #F3F4F6;
+    background: #F9FAFB;
+    font-size: 16px;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+.search-input-wrapper input:focus {
+    outline: none;
+    border-color: #c41e1e;
+    background: white;
+    box-shadow: 0 0 0 4px rgba(196, 30, 30, 0.1);
+}
+
+.track-btn {
+    background: #c41e1e;
+    color: white;
+    border: none;
+    padding: 0 40px;
+    border-radius: 16px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.track-btn:hover {
+    background: #a31919;
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(196, 30, 30, 0.3);
+}
+
+.tracking-error {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: #FEF2F2;
+    color: #B91C1C;
+    border-radius: 12px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.tracking-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 80px 0;
+    text-align: center;
+    color: #9CA3AF;
+}
+
+.placeholder-icon {
+    width: 100px;
+    height: 100px;
+    background: #F3F4F6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 24px;
+    color: #D1D5DB;
+}
+
+.tracking-placeholder h3 {
+    font-size: 20px;
+    color: #4B5563;
+    margin-bottom: 8px;
+}
+
+.tracking-placeholder p {
+    font-size: 15px;
+    max-width: 320px;
+}
+
+/* Standalone Modal Content Overrides */
+.shipment-modal-content.standalone {
+    position: static;
+    transform: none;
+    width: 100%;
+    max-width: none;
+    box-shadow: none;
+    padding: 0;
+}
+
+.tracking-result {
+    background: white;
+    padding: 40px;
+    border-radius: 32px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+@media (max-width: 768px) {
+    .tracking-search-form {
+        flex-direction: column;
+    }
+
+    .track-btn {
+        padding: 16px;
+    }
+}
+
+/* Status Pill Styles */
+.status-pill {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 99px;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+}
+
+.status-pill.pending {
+    background: #E0F2FE;
+    color: #0369A1;
+}
+
+.status-pill.proses {
+    background: #FEF3C7;
+    color: #92400E;
+}
+
+.status-pill.selesai {
+    background: #DCFCE7;
+    color: #166534;
+}
+
+.status-pill.dibatalkan {
+    background: #FEE2E2;
+    color: #991B1B;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.5s ease-out;
+}
+
+/* Live Tracking Map Premium Styles */
+.live-tracking-dashboard {
+    background: #111827;
+    border-radius: 24px;
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    overflow: hidden;
+    margin-top: 32px;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3);
+    border: 1px solid #374151;
+}
+
+.map-sidebar {
+    background: #111827;
+    padding: 24px;
+    color: white;
+    border-right: 1px solid #374151;
+}
+
+.map-sidebar h3 {
+    font-size: 16px;
+    margin-bottom: 20px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.map-tabs {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 32px;
+    border-bottom: 1px solid #1f2937;
+}
+
+.map-tab {
+    color: #9CA3AF;
+    padding-bottom: 8px;
+    cursor: pointer;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.map-tab.active {
+    color: #3b82f6;
+    border-bottom: 2px solid #3b82f6;
+}
+
+.vehicle-table {
+    width: 100%;
+}
+
+.vehicle-table th {
+    text-align: left;
+    font-size: 9px;
+    color: #6B7280;
+    padding-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.vehicle-table td {
+    padding: 12px 0;
+    font-size: 12px;
+    border-top: 1px solid #1f2937;
+    color: #E5E7EB;
+}
+
+.route-cell {
+    display: flex;
+    align-items: center;
+}
+
+.route-strip {
+    height: 4px;
+    width: 24px;
+    border-radius: 2px;
+}
+
+.route-blue {
+    background: #3b82f6;
+    box-shadow: 0 0 8px rgba(59, 130, 246, 0.5);
+}
+
+.route-red {
+    background: #ef4444;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.5);
+}
+
+.route-orange {
+    background: #f97316;
+    box-shadow: 0 0 8px rgba(249, 115, 22, 0.5);
+}
+
+.map-visual-container {
+    background: #0f172a;
+    position: relative;
+    min-height: 400px;
+}
+
+.simulated-map {
+    width: 100%;
+    height: 100%;
+    background-image:
+        radial-gradient(#1e293b 1px, transparent 1px);
+    background-size: 30px 30px;
+    position: relative;
+}
+
+.map-route-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+.route-path {
+    fill: none;
+    stroke-width: 6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.stop-marker {
+    width: 22px;
+    height: 22px;
+    background: #111827;
+    border: 2px solid #3b82f6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 10px;
+    font-weight: 800;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    z-index: 5;
+}
+
+.current-pin-wrapper {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    z-index: 10;
+}
+
+.current-pin {
+    width: 36px;
+    height: 36px;
+    background: #3b82f6;
+    border-radius: 36px 36px 36px 0;
+    transform: rotate(-45deg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
+    animation: pinBounce 2s infinite ease-in-out;
+}
+
+.current-pin svg {
+    transform: rotate(45deg);
+    color: white;
+}
+
+@keyframes pinBounce {
+
+    0%,
+    100% {
+        transform: translateY(0) rotate(-45deg);
+    }
+
+    50% {
+        transform: translateY(-8px) rotate(-45deg);
+    }
+}
+
+.map-actions {
+    position: absolute;
+    bottom: 24px;
+    right: 24px;
+    display: flex;
+    gap: 12px;
+}
+
+.btn-map-action {
+    background: #1f2937;
+    color: white;
+    border: 1px solid #374151;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.btn-map-action.primary {
+    background: #3b82f6;
+    border-color: #3b82f6;
+}
+
+@media (max-width: 900px) {
+    .live-tracking-dashboard {
+        grid-template-columns: 1fr;
+    }
+
+    .map-sidebar {
+        border-right: none;
+        border-bottom: 1px solid #374151;
+    }
+}

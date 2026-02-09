@@ -4,17 +4,19 @@ import {
     LayoutDashboard,
     ClipboardList,
     History,
-    Calculator,
     Settings,
     ChevronLeft,
-    Package,
-    LogOut
+    LogOut,
+    ShieldCheck,
+    Search
 } from 'lucide-react';
+import { useLogistics } from '../context/LogisticsContext';
 import '../styles/Sidebar.css';
 
 const Sidebar = () => {
     const location = useLocation();
     const navigate = useNavigate();
+    const { user } = useLogistics();
     const currentPath = location.pathname;
     const [isCollapsed, setIsCollapsed] = useState(false);
 
@@ -30,6 +32,11 @@ const Sidebar = () => {
             icon: <LayoutDashboard size={20} />
         },
         {
+            path: '/app/tracking',
+            name: 'Lacak Paket',
+            icon: <Search size={20} />
+        },
+        {
             path: '/app/shipping',
             name: 'Buat Pengiriman',
             icon: <ClipboardList size={20} />
@@ -42,9 +49,12 @@ const Sidebar = () => {
         {
             path: '/app/settings',
             name: 'Panel Admin',
-            icon: <Settings size={20} />
+            icon: <Settings size={20} />,
+            adminOnly: true
         }
     ];
+
+    const filteredMenuItems = menuItems.filter(item => !item.adminOnly || user?.role === 'admin');
 
     return (
         <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
@@ -65,7 +75,7 @@ const Sidebar = () => {
 
             <nav className="sidebar-nav">
                 <ul className="sidebar-menu">
-                    {menuItems.map((item) => (
+                    {filteredMenuItems.map((item) => (
                         <li key={item.path} className="sidebar-item">
                             <Link
                                 to={item.path}
@@ -82,10 +92,18 @@ const Sidebar = () => {
             <div className="sidebar-footer">
                 {!isCollapsed && (
                     <div className="user-info">
-                        <div className="user-avatar">Z</div>
+                        <div className="user-avatar">{user?.avatar || 'Z'}</div>
                         <div className="user-details">
-                            <span className="user-name">ZaraRara</span>
-                            <span className="user-role">Premium User</span>
+                            <span className="user-name">{user?.name || 'ZaraRara'}</span>
+                            <span className="user-role">
+                                {user?.role === 'admin' ? (
+                                    <span className="role-chip admin">
+                                        <ShieldCheck size={12} /> Admin
+                                    </span>
+                                ) : (
+                                    'Premium User'
+                                )}
+                            </span>
                         </div>
                         <button className="logout-btn" onClick={handleLogout} title="Keluar">
                             <LogOut size={18} />

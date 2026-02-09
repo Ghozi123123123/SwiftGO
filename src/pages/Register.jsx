@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Eye, EyeOff } from 'lucide-react';
+import { useLogistics } from '../context/LogisticsContext';
 import '../styles/Login.css';
 
 const Register = () => {
     const navigate = useNavigate();
+    const { showNotification } = useLogistics();
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
     const [formData, setFormData] = useState({
@@ -26,7 +28,7 @@ const Register = () => {
         e.preventDefault();
         // Validation logic would go here
         if (formData.password !== formData.confirmPassword) {
-            alert("Passwords do not match!");
+            showNotification("Passwords do not match!", "error");
             return;
         }
         console.log('Registration Data:', formData);

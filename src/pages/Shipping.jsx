@@ -6,7 +6,7 @@ import '../styles/Shipping.css';
 
 const Shipping = () => {
     const navigate = useNavigate();
-    const { addOrder, rates, balance, deductBalance, orders } = useLogistics();
+    const { addOrder, rates, balance, deductBalance, orders, showNotification } = useLogistics();
     const [formData, setFormData] = useState({
         senderName: '',
         senderPhone: '',
@@ -136,12 +136,12 @@ const Shipping = () => {
             .map(([_, label]) => label);
 
         if (missingFields.length > 0) {
-            alert(`Mohon lengkapi kolom berikut:\n- ${missingFields.join('\n- ')}`);
+            showNotification(`Mohon lengkapi kolom berikut:\n- ${missingFields.join('\n- ')}`, 'warning');
             return;
         }
 
         if (formData.payment === 'Non-COD' && balance < costs.total) {
-            alert(`Saldo tidak mencukupi! Saldo Anda: Rp ${balance.toLocaleString()}. Total Biaya: Rp ${costs.total.toLocaleString()}. Silakan isi saldo terlebih dahulu.`);
+            showNotification(`Saldo tidak mencukupi! Saldo Anda: Rp ${balance.toLocaleString()}. Total Biaya: Rp ${costs.total.toLocaleString()}. Silakan isi saldo terlebih dahulu.`, 'error');
             navigate('/app');
             return;
         }
@@ -150,9 +150,18 @@ const Shipping = () => {
             orderNo: `SWG-${Math.floor(1000 + Math.random() * 9000)}`,
             senderName: formData.senderName,
             senderPhone: formData.senderPhone,
+            senderAddress: formData.senderAddress,
+            senderProvince: formData.senderProvince,
             senderCity: formData.senderCity,
+            senderDistrict: formData.senderDistrict,
+            senderPostal: formData.senderPostal,
             receiverName: formData.receiverName,
             receiverPhone: formData.receiverPhone,
+            receiverAddress: formData.receiverAddress,
+            receiverProvince: formData.receiverProvince,
+            receiverCity: formData.receiverCity,
+            receiverDistrict: formData.receiverDistrict,
+            receiverPostal: formData.receiverPostal,
             destination: formData.receiverCity,
             status: 'Pending',
             date: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
@@ -168,11 +177,11 @@ const Shipping = () => {
         };
 
         if (formData.payment === 'Non-COD') {
-            deductBalance(costs.total);
+            deductBalance(costs.total, `Pembayaran ${newOrder.orderNo}`);
         }
 
         addOrder(newOrder);
-        alert(formData.payment === 'COD' ? 'Pengiriman Berhasil Dibuat! (Metode COD)' : 'Pengiriman Berhasil Dibuat! Saldo Anda telah terpotong.');
+        showNotification(formData.payment === 'COD' ? 'Pengiriman Berhasil Dibuat! (Metode COD)' : 'Pengiriman Berhasil Dibuat! Saldo Anda telah terpotong.', 'success');
         navigate('/app/orders');
     };
 
@@ -305,7 +314,7 @@ const Shipping = () => {
                                 <label>Berat (kg)</label>
                                 <input type="number" name="weight" value={formData.weight} onChange={handleChange} className="form-input" placeholder="0" />
                             </div>
-                            <div className="form-group">
+                            <div className="form-group full-width">
                                 <div className="dimension-grid">
                                     <div className="form-group">
                                         <label>P (cm)</label>
@@ -334,7 +343,7 @@ const Shipping = () => {
                             <h2 className="section-title">Layanan & Pembayaran</h2>
                         </div>
                         <div className="form-grid">
-                            <div className="form-group">
+                            <div className="form-group full-width">
                                 <label>Jenis Layanan</label>
                                 <div className="service-selection">
                                     <div className={`service-card ${formData.service === 'Reguler' ? 'active' : ''}`} onClick={() => handleServiceSelect('Reguler')}>
@@ -360,7 +369,7 @@ const Shipping = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="form-group">
+                            <div className="form-group full-width">
                                 <label>Metode Pembayaran</label>
                                 <div className="service-selection">
                                     <div className={`service-card ${formData.payment === 'Non-COD' ? 'active' : ''}`} onClick={() => handlePaymentSelect('Non-COD')}>

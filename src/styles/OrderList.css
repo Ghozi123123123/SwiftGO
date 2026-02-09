@@ -1,120 +1,475 @@
-/* OrderList.css */
+/* OrderList.css Redesign */
 .order-list-page {
     animation: fadeIn 0.4s ease-out;
+    padding-bottom: 50px;
 }
 
 .page-header {
     display: flex;
     justify-content: space-between;
-    align-items: flex-end;
+    align-items: center;
     margin-bottom: 24px;
 }
 
 .page-header h2 {
     font-weight: 900;
-    font-size: 28px;
+    font-size: 26px;
+    margin: 0;
+    color: #111827;
 }
 
-.stats-mini {
+.history-table-container {
     background: white;
-    padding: 8px 16px;
     border-radius: 12px;
     border: 1px solid #E5E7EB;
-    font-size: 14px;
+    overflow-x: auto;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
 }
 
-.table-card {
-    background: white;
-    border-radius: 24px;
-    border: 1px solid #E5E7EB;
-    overflow: hidden;
-}
-
-.order-table {
+.history-table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 1000px;
 }
 
-.order-table th {
-    background: #F9FAFB;
+.history-table th {
+    background: #f3e8ff;
+    /* Light purple like in image */
     text-align: left;
-    padding: 16px 20px;
-    font-size: 12px;
+    padding: 12px 16px;
+    font-size: 11px;
+    font-weight: 800;
+    color: #4b2c6e;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid #E5E7EB;
+    border-right: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.history-table th:last-child {
+    border-right: none;
+}
+
+.history-table td {
+    padding: 20px 16px;
+    border-bottom: 1px solid #F3F4F6;
+    border-right: 1px solid #F9FAFB;
+    vertical-align: top;
+    font-size: 13px;
+    color: #374151;
+}
+
+.history-table td:last-child {
+    border-right: none;
+}
+
+/* NO Column */
+.row-no {
     font-weight: 700;
     color: #6B7280;
+    text-align: center;
+}
+
+/* TRANSAKSI Column Simplified */
+.col-transaksi {
+    vertical-align: top;
+}
+
+.transaksi-main {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.payment-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 800;
+    font-size: 11px;
+    color: #9c6e3b;
     text-transform: uppercase;
 }
 
-.order-table td {
-    padding: 16px 20px;
-    border-bottom: 1px solid #F3F4F6;
+.order-no-text {
+    font-weight: 900;
+    font-size: 13px;
+    color: #111827;
+}
+
+.order-time-text {
+    font-size: 11px;
+    color: #9CA3AF;
+}
+
+.status-select-minimal {
+    padding: 2px 24px 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid transparent;
+    cursor: pointer;
+    width: fit-content;
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m3 5 3 3 3-3'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 6px center;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.status-select-minimal.pending {
+    background-color: #e0f2fe;
+    color: #0369a1;
+}
+
+.status-select-minimal.proses {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+
+.status-select-minimal.selesai {
+    background-color: #dcfce7;
+    color: #166534;
+}
+
+.status-select-minimal.dibatalkan {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+
+.status-select-minimal:focus {
+    border-color: rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.05);
+}
+
+.app-tag-text {
+    font-size: 10px;
+    color: #D1D5DB;
+}
+
+/* ALAMAT Column Simplified */
+.address-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.address-line {
+    font-size: 12px;
+    line-height: 1.4;
+    color: #374151;
+}
+
+.address-line strong {
+    font-weight: 700;
+    color: #1E40AF;
+}
+
+.address-line:nth-child(3) strong {
+    color: #6D28D9;
+}
+
+.address-hint {
+    font-size: 11px;
+    color: #9CA3AF;
+    margin-top: 4px;
+    font-style: italic;
+}
+
+/* EKSPEDISI Column Simplified */
+.ekspedisi-content {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.exp-service-row {
+    font-weight: 700;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: #111827;
+}
+
+.exp-amount-row {
+    font-weight: 800;
+    color: #059669;
     font-size: 14px;
 }
 
-.order-no {
-    font-weight: 800;
-    color: #c41e1e;
+.exp-cod-row {
+    font-size: 11px;
+    color: #6B7280;
 }
 
-.order-amount {
-    font-weight: 800;
-}
-
-.status-select {
-    padding: 6px 12px;
-    border-radius: 30px;
-    font-size: 12px;
-    font-weight: 700;
-    border: none;
-    outline: none;
-    cursor: pointer;
-}
-
-.status-select.pending {
-    background: #fef9c3;
-    color: #ca8a04;
-}
-
-.status-select.proses {
-    background: #dbeafe;
-    color: #2563eb;
-}
-
-.status-select.selesai {
-    background: #dcfce7;
-    color: #16a34a;
-}
-
-.btn-print,
-.btn-delete {
-    display: inline-flex;
+.exp-resi-row {
+    font-size: 11px;
+    font-weight: 600;
+    color: #4B5563;
+    display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 6px 12px;
-    border-radius: 8px;
-    font-size: 12px;
+    gap: 4px;
+}
+
+.btn-copy-mini {
+    border: none;
+    background: #F3F4F6;
+    padding: 2px;
+    border-radius: 4px;
+    display: flex;
+    cursor: pointer;
+    color: #9CA3AF;
+}
+
+.exp-btns {
+    display: flex;
+    gap: 4px;
+    margin-top: 4px;
+}
+
+.badge-util {
+    font-size: 9px;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: #DBEAFE;
+    color: #1E40AF;
+    text-transform: uppercase;
+}
+
+.badge-util.gray {
+    background: #F3F4F6;
+    color: #6B7280;
+}
+
+/* ISI PAKET Column Simplified */
+.paket-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.item-name-row {
     font-weight: 700;
-    border: 1px solid #E5E7EB;
+    color: #111827;
+}
+
+.item-price-row {
+    font-weight: 800;
+    color: #059669;
+}
+
+.item-spec-row {
+    font-size: 11px;
+    color: #6B7280;
+}
+
+.icon-tiny {
+    color: #DC2626;
+}
+
+/* AKSI Column */
+.col-aksi {
+    position: relative;
+}
+
+.action-main {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-print-outline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border: 2px solid #6d28d9;
     background: white;
+    color: #111827;
+    border-radius: 12px;
+    font-weight: 800;
+    font-size: 13px;
     cursor: pointer;
     transition: all 0.2s;
 }
 
-.btn-print {
+.btn-print-outline:hover {
+    background: #f5f3ff;
+    transform: translateY(-1px);
+}
+
+.btn-more {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 2px solid #6d28d9;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #6d28d9;
+}
+
+/* Dropdown Menu */
+.more-menu-container {
+    position: relative;
+}
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    z-index: 100;
+    width: 180px;
+    overflow: hidden;
+    animation: slideDown 0.2s ease-out;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown-menu button {
+    width: 100%;
+    padding: 10px 16px;
+    text-align: left;
+    background: none;
+    border: none;
+    font-size: 13px;
+    font-weight: 600;
+    color: #374151;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.dropdown-menu button:hover {
+    background: #F9FAFB;
+}
+
+.dropdown-menu button.btn-danger-text {
+    color: #EF4444;
+}
+
+.dropdown-menu button svg {
     color: #6B7280;
 }
 
-.btn-print:hover {
-    background: #F9FAFB;
-    color: #c41e1e;
-    border-color: #c41e1e;
+.dropdown-menu button:hover svg {
+    color: #111827;
 }
 
-.btn-delete {
+.dropdown-menu button.btn-danger-text:hover svg {
     color: #EF4444;
-    border-color: #FEE2E2;
 }
 
-.btn-delete:hover {
-    background: #FEF2F2;
+/* Color Utilities */
+.text-blue-bold {
+    color: #2563eb;
+    font-weight: 800;
+}
+
+.text-brown-bold {
+    color: #92400e;
+    font-weight: 800;
+}
+
+.text-blue-dark {
+    color: #1e3a8a;
+}
+
+.text-purple-dark {
+    color: #581c87;
+}
+
+.text-green-bold {
+    color: #059669;
+    font-weight: 800;
+}
+
+.text-grey-dark {
+    color: #4B5563;
+    font-weight: 700;
+}
+
+.payment-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    display: inline-block;
+    vertical-align: middle;
+    margin-right: 4px;
+}
+
+.payment-dot.cod {
+    background: #3b82f6;
+}
+
+.payment-dot.non-cod {
+    background: #d97706;
+}
+
+.history-table th:nth-child(2) {
+    color: #4b2c6e;
+}
+
+/* TRANSAKSI */
+.history-table th:nth-child(3) {
+    color: #1e40af;
+}
+
+/* ALAMAT */
+.history-table th:nth-child(4) {
+    color: #166534;
+}
+
+/* EKSPEDISI */
+.history-table th:nth-child(5) {
+    color: #065f46;
+}
+
+/* ISI PAKET */
+
+.history-table-container::-webkit-scrollbar {
+    height: 8px;
+}
+
+.history-table-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.history-table-container::-webkit-scrollbar-thumb {
+    background: #e2e8f0;
+    border-radius: 4px;
+}
+
+.history-table-container::-webkit-scrollbar-thumb:hover {
+    background: #cbd5e1;
+}
+
+.empty-state {
+    padding: 60px !important;
+    text-align: center !important;
+    color: #9CA3AF !important;
+    font-size: 16px !important;
 }

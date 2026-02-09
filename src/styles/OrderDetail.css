@@ -110,6 +110,79 @@
     color: #111827;
 }
 
+/* Vertical Timeline Styles */
+.timeline-details {
+    padding: 10px 0;
+}
+
+.timeline-row {
+    display: flex;
+    gap: 24px;
+    position: relative;
+    padding-bottom: 32px;
+}
+
+.timeline-row:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    left: 119px;
+    /* Center of 32px marker: Date(80) + Gap(24) + MarkerWidth(32)/2 = 120px. Adjusting for 2px width: 119px */
+    top: 32px;
+    bottom: 0;
+    width: 2px;
+    background: #E5E7EB;
+}
+
+.timeline-date {
+    width: 80px;
+    text-align: right;
+    font-size: 11px;
+    font-weight: 700;
+    color: #9CA3AF;
+    line-height: 1.4;
+    flex-shrink: 0;
+}
+
+.timeline-marker {
+    width: 32px;
+    height: 32px;
+    background: #F3F4F6;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1;
+    color: #9CA3AF;
+    flex-shrink: 0;
+    border: 4px solid white;
+    box-shadow: 0 0 0 1px #E5E7EB;
+    transition: all 0.3s ease;
+}
+
+.timeline-marker.active {
+    background: #c41e1e;
+    color: white;
+    box-shadow: 0 0 0 1px #c41e1e;
+}
+
+.timeline-info h4 {
+    font-size: 14px;
+    font-weight: 800;
+    color: #111827;
+    margin-bottom: 4px;
+}
+
+.timeline-info p {
+    font-size: 12px;
+    line-height: 1.5;
+    color: #6B7280;
+}
+
+.timeline-info .timeline-icon-box {
+    display: none;
+    /* Hide old icon box if it existed */
+}
+
 .address-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;

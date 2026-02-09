@@ -1,0 +1,153 @@
+.splash-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.splash-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    animation: fadeInDown 1s ease-out;
+}
+
+.logo-container {
+    width: 180px;
+    height: 180px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    /* Restoring background to make radius visible */
+    border-radius: 40px;
+    /* Applying the requested radius */
+    padding: 20px;
+    box-shadow: 0 10px 30px rgba(220, 38, 38, 0.1);
+    animation: pulse 2s infinite ease-in-out;
+}
+
+.splash-logo {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 32px;
+    overflow: hidden;
+    mix-blend-mode: multiply;
+}
+
+.splash-title {
+    font-family: 'Outfit', 'Inter', sans-serif;
+    font-size: 4rem;
+    font-weight: 800;
+    color: #dc2626;
+    /* Primary Red */
+    margin: 0;
+    line-height: 1;
+    /* Tighten line height */
+    letter-spacing: -0.02em;
+}
+
+.splash-subtitle {
+    font-family: 'Inter', sans-serif;
+    font-size: 1.1rem;
+    color: #64748b;
+    margin-top: 6px;
+    /* User requested 6px */
+    font-weight: 500;
+}
+
+
+.splash-loader {
+    position: absolute;
+    bottom: 100px;
+    width: 200px;
+    height: 4px;
+    background: #f1f5f9;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.loader-bar {
+    width: 0%;
+    height: 100%;
+    background: #dc2626;
+    border-radius: 10px;
+    animation: loading 2.5s linear forwards;
+    /* Match 2.5s duration from App.jsx */
+}
+
+@keyframes fadeInDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+        box-shadow: 0 10px 30px rgba(220, 38, 38, 0.1);
+    }
+
+    50% {
+        transform: scale(1.05);
+        box-shadow: 0 15px 40px rgba(220, 38, 38, 0.2);
+    }
+
+    100% {
+        transform: scale(1);
+        box-shadow: 0 10px 30px rgba(220, 38, 38, 0.1);
+    }
+}
+
+@keyframes loading {
+    0% {
+        width: 0%;
+    }
+
+    100% {
+        width: 100%;
+    }
+}
+
+
+/* Subtle background circles */
+.splash-screen::before,
+.splash-screen::after {
+    content: '';
+    position: absolute;
+    border-radius: 50%;
+    z-index: -1;
+}
+
+.splash-screen::before {
+    width: 400px;
+    height: 400px;
+    background: rgba(220, 38, 38, 0.03);
+    top: -100px;
+    right: -100px;
+}
+
+.splash-screen::after {
+    width: 300px;
+    height: 300px;
+    background: rgba(220, 38, 38, 0.05);
+    bottom: -50px;
+    left: -50px;
+}

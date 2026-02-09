@@ -7,7 +7,10 @@ import {
     Package as PackageIcon,
     ChevronRight,
     CheckCircle2,
-    Truck
+    Truck,
+    Download,
+    User,
+    Navigation
 } from 'lucide-react';
 import { useLogistics } from '../context/LogisticsContext';
 import { downloadReceipt } from '../services/receiptUtils';
@@ -56,14 +59,87 @@ const OrderDetail = () => {
                     <h3><MapPin size={18} color="#c41e1e" /> Timeline Perjalanan</h3>
                 </div>
                 <div className="timeline-list">
-                    <div className="timeline-item active">
-                        <div className="timeline-dot"></div>
-                        <div className="timeline-content">
-                            <h4>Pesanan Dibuat</h4>
-                            <p>Admin</p>
-                            <span className="time">{order.date}</span>
-                        </div>
-                    </div>
+                    {(() => {
+                        const statusMapping = {
+                            'Pending': 1,
+                            'Proses': 3,
+                            'Selesai': 4,
+                            'Dibatalkan': 0
+                        };
+                        const step = statusMapping[order.status] || 1;
+
+                        return (
+                            <div className="timeline-details">
+                                {step >= 4 && (
+                                    <div className="timeline-row">
+                                        <div className="timeline-date">
+                                            <div>{order.date}</div>
+                                            <div>15:30</div>
+                                        </div>
+                                        <div className="timeline-marker active">
+                                            <User size={14} />
+                                        </div>
+                                        <div className="timeline-info">
+                                            <h4>Paket Diterima</h4>
+                                            <p>Paket telah sampai di tujuan dan diterima oleh penghuni alamat.</p>
+                                        </div>
+                                    </div>
+                                )}
+                                {step >= 3 && (
+                                    <div className="timeline-row">
+                                        <div className="timeline-date">
+                                            <div>{order.date}</div>
+                                            <div>02:00</div>
+                                        </div>
+                                        <div className="timeline-marker active">
+                                            <Navigation size={14} />
+                                        </div>
+                                        <div className="timeline-info">
+                                            <h4>Kurir Menjemput</h4>
+                                            <p>Kurir sedang menjemput paketmu di hub terdekat.</p>
+                                        </div>
+                                    </div>
+                                )}
+                                {step >= 2 && (
+                                    <div className="timeline-row">
+                                        <div className="timeline-date">
+                                            <div>{order.date}</div>
+                                            <div>10:00</div>
+                                        </div>
+                                        <div className="timeline-marker active">
+                                            <Truck size={14} />
+                                        </div>
+                                        <div className="timeline-info">
+                                            <h4>Berangkat Dari {order.senderCity || 'Jakarta'}</h4>
+                                            <p>Paketmu sedang dalam perjalanan menuju kota tujuan.</p>
+                                        </div>
+                                    </div>
+                                )}
+                                {step >= 1 && (
+                                    <div className="timeline-row">
+                                        <div className="timeline-date">10:00</div>
+                                        <div className="timeline-marker active">
+                                            <PackageIcon size={14} />
+                                        </div>
+                                        <div className="timeline-info">
+                                            <h4>Gudang Sortir {order.senderCity || 'Jakarta Pusat'}</h4>
+                                            <p>Paket telah sampai di pusat sortir {order.senderCity}.</p>
+                                        </div>
+                                    </div>
+                                )}
+                                <div className="timeline-row">
+                                    <div className="timeline-date">{order.date}</div>
+                                    <div className="timeline-marker active">
+                                        <CheckCircle2 size={14} />
+                                    </div>
+                                    <div className="timeline-info">
+                                        <h4>Penjadwalan</h4>
+                                        <p>Penjadwalan penjemputan paket</p>
+                                    </div>
+                                </div>
+                            </div>
+                        );
+                    })()}
                 </div>
             </div>
 
@@ -78,7 +154,10 @@ const OrderDetail = () => {
                     <h3 className="card-title"><User size={16} color="#c41e1e" /> Penerima</h3>
                     <p className="name">{order.receiverName}</p>
                     <p className="phone">{order.receiverPhone || '-'}</p>
-                    <p className="address">{order.destination}</p>
+                    <p className="address">
+                        {order.receiverAddress || order.destination}<br />
+                        {order.receiverDistrict && `${order.receiverDistrict}, `}{order.receiverCity || order.destination}{order.receiverProvince && `, ${order.receiverProvince}`}
+                    </p>
                 </div>
             </div>
 
@@ -90,12 +169,17 @@ const OrderDetail = () => {
                         <span>{order.item || 'Paket Logistik'}</span>
                     </div>
                     <div className="item-field">
-                        <label>Jenis</label>
-                        <span>UMUM</span>
+                        <label>Kategori</label>
+                        <span>{order.itemType || 'UMUM'}</span>
                     </div>
+
                     <div className="item-field">
                         <label>Berat</label>
                         <span>{order.weight || '1'} kg</span>
+                    </div>
+                    <div className="item-field">
+                        <label>Dimensi</label>
+                        <span>{order.length || 0}x{order.width || 0}x{order.height || 0} cm</span>
                     </div>
                     <div className="item-field">
                         <label>Layanan</label>
@@ -113,8 +197,8 @@ const OrderDetail = () => {
             </div>
 
             <button className="print-btn-large" onClick={() => downloadReceipt(order)}>
-                <Printer size={20} />
-                Cetak Resi
+                <Download size={20} />
+                Download Resi
             </button>
         </div>
     );
