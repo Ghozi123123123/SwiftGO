@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Package, User, MapPin, Truck, CreditCard, Zap, Rocket, Banknote, QrCode, Home } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Navigate } from 'react-router-dom';
 import { useLogistics } from '../context/LogisticsContext';
 import '../styles/Shipping.css';
 
 const Shipping = () => {
     const navigate = useNavigate();
-    const { addOrder, rates, balance, deductBalance, orders, showNotification } = useLogistics();
+    const { addOrder, rates, balance, deductBalance, orders, showNotification, user } = useLogistics();
+
+    if (user?.role !== 'admin') {
+        return <Navigate to="/app/tracking" replace />;
+    }
     const [formData, setFormData] = useState({
         senderName: '',
         senderPhone: '',
@@ -408,10 +412,7 @@ const Shipping = () => {
                                 <span>Biaya Layanan</span>
                                 <span>Rp {costs.serviceFee.toLocaleString()}</span>
                             </div>
-                            <div className="cost-item">
-                                <span>Ongkir</span>
-                                <span>Rp {costs.locationFee.toLocaleString()}</span>
-                            </div>
+
                             {costs.discount > 0 && (
                                 <div className="cost-item discount" style={{ color: '#059669' }}>
                                     <span>Diskon Loyalitas ({costs.discount}%)</span>

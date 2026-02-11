@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, Navigate } from 'react-router-dom';
 import {
     Printer,
     Trash2,
@@ -14,16 +14,17 @@ import {
     Download,
     MoreVertical,
     Copy,
-    MessageCircle,
     ArrowUpCircle,
     ArrowDownCircle,
     ExternalLink,
     Compass,
     CheckCircle2,
     ChevronRight,
-    MapPinned
+    MapPinned,
+    FileText
 } from 'lucide-react';
 import { useLogistics } from '../context/LogisticsContext';
+import { downloadShippingReport } from '../services/reportUtils';
 import { downloadReceipt, generateReceiptCanvas, printReceipt } from '../services/receiptUtils';
 import '../styles/OrderList.css';
 import '../styles/ShipmentModal.css';
@@ -31,6 +32,10 @@ import '../styles/ShipmentModal.css';
 const OrderList = () => {
     const { orders, deleteOrder, updateOrderStatus, addBalance, showNotification, user } = useLogistics();
     const navigate = useNavigate();
+
+    if (user?.role !== 'admin') {
+        return <Navigate to="/app/tracking" replace />;
+    }
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
@@ -131,6 +136,13 @@ const OrderList = () => {
                 <h2>Riwayat Pengiriman</h2>
                 <div className="stats-mini">
                     <span>Total Pesanan: <strong>{orders.length}</strong></span>
+                    <button
+                        className="download-report-btn-history"
+                        onClick={() => downloadShippingReport(orders)}
+                    >
+                        <FileText size={16} />
+                        Unduh Laporan
+                    </button>
                 </div>
             </div>
 
@@ -229,11 +241,7 @@ const OrderList = () => {
                                             {activeMenuIndex === index && (
                                                 <div className="dropdown-menu">
 
-                                                    <button onClick={(e) => { e.stopPropagation(); window.open(`https://wa.me/${order.receiverPhone}`, '_blank'); }}><MessageCircle size={14} /> Hubungi Penerima</button>
                                                     <button onClick={() => handleRowClick(order)}><Compass size={14} /> Tracking</button>
-                                                    {order.status !== 'Dibatalkan' && (
-                                                        <button className="btn-danger-text" onClick={(e) => handleCancelClick(e, order)}><X size={14} /> Batalkan</button>
-                                                    )}
                                                 </div>
                                             )}
                                         </div>
@@ -282,7 +290,11 @@ const OrderList = () => {
                                         <Navigation size={20} />
                                         {step >= 3 && <div className="step-check"><Check size={10} strokeWidth={4} /></div>}
                                     </div>
-                                    <span className="step-label">Luar Kota</span>
+                                    <span className="step-label">
+                                        {(selectedOrder.senderCity || '').toLowerCase() === (selectedOrder.receiverCity || selectedOrder.destination || '').toLowerCase()
+                                            ? 'Dalam Kota'
+                                            : 'Luar Kota'}
+                                    </span>
                                 </div>
                                 <div className={`progress-step ${step >= 4 ? 'active' : ''} ${step === 4 ? 'current' : ''}`}>
                                     <div className="step-icon-wrapper">

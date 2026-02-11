@@ -1,12 +1,19 @@
 import React, { useState } from 'react';
+import { Navigate } from 'react-router-dom';
+
 import { Search, Package, Truck, Navigation, User, Check, AlertCircle } from 'lucide-react';
 import { useLogistics } from '../context/LogisticsContext';
 import '../styles/Tracking.css';
 import '../styles/ShipmentModal.css';
 
 const Tracking = () => {
-    const { orders } = useLogistics();
+    const { orders, user } = useLogistics();
     const [searchQuery, setSearchQuery] = useState('');
+
+    if (user?.role === 'admin') {
+        return <Navigate to="/app" replace />;
+    }
+
     const [foundOrder, setFoundOrder] = useState(null);
     const [error, setError] = useState('');
 
@@ -69,94 +76,6 @@ const Tracking = () => {
 
             {foundOrder && (
                 <div className="tracking-result animate-fade-in">
-                    {/* Live Tracking Map Section - AS REQUESTED */}
-                    <div className="live-tracking-dashboard">
-                        <div className="map-sidebar">
-                            <h3>Optimization API</h3>
-                            <div className="map-tabs">
-                                <span className="map-tab">1. Location</span>
-                                <span className="map-tab">2. Shipments</span>
-                                <span className="map-tab">3. Vehicles</span>
-                                <span className="map-tab active">4. Solution</span>
-                            </div>
-
-                            <table className="vehicle-table">
-                                <thead>
-                                    <tr>
-                                        <th>Vehicle ID</th>
-                                        <th>Route</th>
-                                        <th># of Stops</th>
-                                        <th>Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr style={{ background: 'rgba(59, 130, 246, 0.1)' }}>
-                                        <td><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="radio" checked readOnly /> 1</div></td>
-                                        <td><div className="route-strip route-blue"></div></td>
-                                        <td>4</td>
-                                        <td>14:20</td>
-                                    </tr>
-                                    <tr>
-                                        <td><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="radio" readOnly /> 2</div></td>
-                                        <td><div className="route-strip route-red"></div></td>
-                                        <td>3</td>
-                                        <td>13:15</td>
-                                    </tr>
-                                    <tr>
-                                        <td><div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}><input type="radio" readOnly /> 3</div></td>
-                                        <td><div className="route-strip route-orange"></div></td>
-                                        <td>4</td>
-                                        <td>12:55</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-
-                            <div style={{ marginTop: 'auto', paddingTop: '40px', display: 'flex', gap: '12px' }}>
-                                <button className="btn-map-action" style={{ flex: 1 }}>Cancel</button>
-                                <button className="btn-map-action primary" style={{ flex: 1 }}>Save edits</button>
-                            </div>
-                        </div>
-
-                        <div className="map-visual-container">
-                            <div className="simulated-map">
-                                <svg className="map-route-svg">
-                                    {/* Blue Route */}
-                                    <path d="M 100 80 L 150 50 L 250 100 L 220 180 L 120 250 L 80 150 Z" className="route-path" style={{ stroke: '#3b82f6' }} />
-                                    {/* Red Route */}
-                                    <path d="M 250 100 L 350 150 L 320 300 L 200 350 L 150 250" className="route-path" style={{ stroke: '#ef4444' }} />
-                                    {/* Orange Route */}
-                                    <path d="M 350 150 L 450 100 L 500 200 L 400 250 L 350 150" className="route-path" style={{ stroke: '#f97316' }} />
-                                </svg>
-
-                                {/* Markers for Blue Route */}
-                                <div className="stop-marker" style={{ top: '50px', left: '150px' }}>1</div>
-                                <div className="stop-marker" style={{ top: '150px', left: '80px' }}>2</div>
-                                <div className="stop-marker" style={{ top: '250px', left: '120px' }}>3</div>
-                                <div className="stop-marker" style={{ top: '180px', left: '220px' }}>4</div>
-
-                                {/* Current Location Pin */}
-                                <div className="current-pin-wrapper" style={{ top: '100px', left: '250px' }}>
-                                    <div className="current-pin">
-                                        <Truck size={20} />
-                                    </div>
-                                </div>
-
-                                {/* Markers for Red Route */}
-                                <div className="stop-marker" style={{ top: '150px', left: '350px', borderColor: '#ef4444' }}>1</div>
-                                <div className="stop-marker" style={{ top: '300px', left: '320px', borderColor: '#ef4444' }}>2</div>
-                                <div className="stop-marker" style={{ top: '350px', left: '200px', borderColor: '#ef4444' }}>3</div>
-
-                                {/* Markers for Orange Route */}
-                                <div className="stop-marker" style={{ top: '100px', left: '450px', borderColor: '#f97316' }}>1</div>
-                                <div className="stop-marker" style={{ top: '200px', left: '500px', borderColor: '#f97316' }}>2</div>
-                                <div className="stop-marker" style={{ top: '250px', left: '400px', borderColor: '#f97316' }}>3</div>
-                                <div className="stop-marker" style={{ top: '150px', left: '350px', borderColor: '#f97316' }}>4</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style={{ marginTop: '40px' }}></div>
-
                     <div className="shipment-modal-content standalone">
                         <div className="progress-tracker">
                             {(() => {
@@ -182,7 +101,11 @@ const Tracking = () => {
                                                 <Navigation size={20} />
                                                 {step >= 3 && <div className="step-check"><Check size={10} strokeWidth={4} /></div>}
                                             </div>
-                                            <span className="step-label">Luar Kota</span>
+                                            <span className="step-label">
+                                                {foundOrder.senderCity?.toLowerCase() === foundOrder.receiverCity?.toLowerCase()
+                                                    ? 'Dalam Kota'
+                                                    : 'Luar Kota'}
+                                            </span>
                                         </div>
                                         <div className={`progress-step ${step >= 4 ? 'active' : ''} ${step === 4 ? 'current' : ''}`}>
                                             <div className="step-icon-wrapper">

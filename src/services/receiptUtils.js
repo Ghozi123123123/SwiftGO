@@ -148,17 +148,7 @@ const createReceiptElement = (order) => {
                         <strong>Estimasi</strong> <span>: ${getEstimatedDate(order.date, order.service)}</span>
                     </div>
                 </div>
-                <div style="flex: 0.8; padding-left: 10px; border-left: 1px solid #000;">
-                     <div style="border: 2px solid #000; padding: 10px; text-align: center; margin-bottom: 5px;">
-                        <div style="font-size: 10px;">SCAN UNTUK LACAK</div>
-                     </div>
-                     <div style="background: #333; color: white; padding: 10px; text-align: center; display: flex; align-items: center; justify-content: center; gap: 5px;">
-                        <div style="width: 45px; height: 45px; background: white; padding: 2px;">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://swiftgo.com/track/${order.orderNo}" style="width: 100%; height: 100%;" />
-                        </div>
-                        <div style="text-align: left; font-size: 10px; font-weight: bold; line-height: 1.2;">SCAN</div>
-                     </div>
-                </div>
+
                 <div style="flex: 1; padding-left: 10px; border-left: 1px solid #000; font-size: 9px;">
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #000; padding-bottom: 2px; margin-bottom: 2px;">
                         <strong>Total Biaya</strong> <strong>${order.amount}</strong>

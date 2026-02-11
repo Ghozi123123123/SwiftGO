@@ -1,17 +1,13 @@
 import React from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, Navigate } from 'react-router-dom';
 import {
-    Users,
     Package,
+    DollarSign,
     TrendingUp,
     Clock,
     Search,
-
-    ArrowUpRight,
-    ArrowDownRight,
-    Printer,
     Wallet,
-    Plus,
+    Printer,
     CheckCircle,
     Loader,
     Truck,
@@ -25,9 +21,11 @@ import '../styles/Dashboard.css';
 
 const Dashboard = () => {
     const navigate = useNavigate();
-    const { orders, balance, addBalance, balanceHistory, showNotification, user } = useLogistics();
-    const [isModalOpen, setIsModalOpen] = React.useState(false);
-    const [topUpAmount, setTopUpAmount] = React.useState('');
+    const { orders, balance, balanceHistory, showNotification, user } = useLogistics();
+
+    if (user?.role !== 'admin') {
+        return <Navigate to="/app/tracking" replace />;
+    }
     const [searchQuery, setSearchQuery] = React.useState('');
 
     // Calculate status counts
@@ -36,16 +34,24 @@ const Dashboard = () => {
     const selesaiCount = orders.filter(order => order.status === 'Selesai').length;
     const dibatalkanCount = orders.filter(order => order.status === 'Dibatalkan').length;
 
-    // Calculate total revenue from all orders (excluding cancelled)
     const totalRevenue = orders.reduce((sum, order) => {
         if (order.status === 'Dibatalkan') return sum;
         const amount = parseInt(order.amount.replace(/[^0-9]/g, '')) || 0;
         return sum + amount;
     }, 0);
 
+    const codRevenue = orders
+        .filter(order => order.status !== 'Dibatalkan' && order.payment === 'COD')
+        .reduce((sum, order) => sum + (parseInt(order.amount.replace(/[^0-9]/g, '')) || 0), 0);
+
+    const nonCodRevenue = orders
+        .filter(order => order.status !== 'Dibatalkan' && (order.payment === 'Non-COD' || !order.payment))
+        .reduce((sum, order) => sum + (parseInt(order.amount.replace(/[^0-9]/g, '')) || 0), 0);
+
     const balanceStats = [
-        { label: 'Saldo Anda', value: `Rp ${balance.toLocaleString()}`, icon: <Wallet size={20} />, color: '#c41e1e', isBalance: true },
         { label: 'Total Pendapatan', value: `Rp ${totalRevenue.toLocaleString()}`, icon: <TrendingUp size={20} />, color: '#16a34a', adminOnly: true },
+        { label: 'Pendapatan COD', value: `Rp ${codRevenue.toLocaleString()}`, icon: <DollarSign size={20} />, color: '#ef4444', adminOnly: true },
+        { label: 'Pendapatan SALDO', value: `Rp ${nonCodRevenue.toLocaleString()}`, icon: <Wallet size={20} />, color: '#16a34a', adminOnly: true },
     ];
 
     const filteredBalanceStats = balanceStats.filter(stat => !stat.adminOnly || user?.role === 'admin');
@@ -86,9 +92,8 @@ const Dashboard = () => {
                 {filteredBalanceStats.map((stat, index) => (
                     <div
                         key={index}
-                        className={`stat-card balance-card ${stat.isBalance || stat.label === 'Total Pendapatan' ? 'clickable' : ''} ${stat.isBalance ? 'balance-card-red' : 'revenue-card'}`}
+                        className={`stat-card balance-card ${stat.label === 'Total Pendapatan' ? 'clickable' : ''} revenue-card`}
                         onClick={() => {
-                            if (stat.isBalance) setIsModalOpen(true);
                             if (stat.label === 'Total Pendapatan') navigate('/app/settings');
                         }}
                     >
@@ -103,14 +108,6 @@ const Dashboard = () => {
                                 <h2 className="stat-value">{stat.value}</h2>
                             </div>
                         </div>
-                        {stat.isBalance && (
-                            <div className="balance-actions">
-                                <button className="add-balance-btn">
-                                    <Plus size={16} />
-                                    <span>Top Up Saldo</span>
-                                </button>
-                            </div>
-                        )}
                         <div className="card-decoration"></div>
                     </div>
                 ))}
@@ -133,70 +130,6 @@ const Dashboard = () => {
                     </div>
                 ))}
             </div>
-
-            {/* Top Up Modal with History */}
-            {isModalOpen && (
-                <div className="modal-overlay" onClick={() => setIsModalOpen(false)}>
-                    <div className="modal-content balance-modal" onClick={(e) => e.stopPropagation()}>
-                        <div className="modal-header">
-                            <div>
-                                <h3>Kelola Saldo</h3>
-                                <p className="modal-subtitle">Total Saldo: Rp {balance.toLocaleString()}</p>
-                            </div>
-                            <button className="close-btn" onClick={() => setIsModalOpen(false)}>×</button>
-                        </div>
-
-                        <div className="modal-body-complex">
-                            <div className="modal-section topup-section">
-                                <h4 className="section-title-small">Tambah Saldo</h4>
-                                <p className="section-desc-small">Masukkan jumlah saldo yang ingin Anda tambahkan.</p>
-                                <div className="input-group-large">
-                                    <span className="currency-prefix">Rp</span>
-                                    <input
-                                        type="number"
-                                        placeholder="0"
-                                        value={topUpAmount}
-                                        onChange={(e) => setTopUpAmount(e.target.value)}
-                                        autoFocus
-                                    />
-                                </div>
-                                <button className="confirm-modal-btn-large" onClick={() => {
-                                    if (topUpAmount) {
-                                        addBalance(topUpAmount);
-                                        showNotification(`Saldo sebesar Rp ${Number(topUpAmount).toLocaleString()} berhasil ditambahkan!`, 'success');
-                                        setTopUpAmount('');
-                                        setIsModalOpen(false);
-                                    }
-                                }}>Konfirmasi Tambah Saldo</button>
-                            </div>
-
-                            <div className="modal-section history-section">
-                                <h4 className="section-title-small">Aktivitas Terakhir</h4>
-                                <div className="modal-activity-list">
-                                    {balanceHistory.length > 0 ? (
-                                        balanceHistory.map((activity) => (
-                                            <div key={activity.id} className="modal-activity-item">
-                                                <div className={`activity-indicator-small ${activity.type}`}>
-                                                    {activity.type === 'increase' ? '+' : '-'}
-                                                </div>
-                                                <div className="activity-details">
-                                                    <div className="activity-name">{activity.description}</div>
-                                                    <div className="activity-time">{activity.date}</div>
-                                                </div>
-                                                <div className={`activity-value ${activity.type}`}>
-                                                    {activity.type === 'increase' ? '+' : '-'}Rp {activity.amount.toLocaleString()}
-                                                </div>
-                                            </div>
-                                        ))
-                                    ) : (
-                                        <div className="empty-activity-small">Belum ada riwayat transaksi.</div>
-                                    )}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
 
             <div className="dashboard-content animate-slide-up" style={{ animationDelay: '0.2s' }}>
                 <div className="content-card shipping-methods">

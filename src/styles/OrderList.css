@@ -18,6 +18,36 @@
     color: #111827;
 }
 
+.download-report-btn-history {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 12px;
+    border: 1px solid #E5E7EB;
+    background: white;
+    cursor: pointer;
+    font-weight: 700;
+    font-size: 13px;
+    color: #374151;
+    transition: all 0.2s;
+    margin-left: 16px;
+}
+
+.download-report-btn-history:hover {
+    background: #F9FAFB;
+    border-color: #D1D5DB;
+    color: #111827;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.stats-mini {
+    display: flex;
+    align-items: center;
+}
+
+
 .history-table-container {
     background: white;
     border-radius: 12px;

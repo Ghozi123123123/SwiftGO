@@ -23,7 +23,7 @@ const Login = () => {
 
     const handleQuickLogin = (role) => {
         const userData = role === 'admin'
-            ? { role: 'admin', name: 'Zian Admin', avatar: 'A' }
+            ? { role: 'admin', name: 'ZaraRara Admin', avatar: 'A' }
             : { role: 'customer', name: 'ZaraRara', avatar: 'Z' };
 
         setUser(userData);
@@ -46,7 +46,7 @@ const Login = () => {
                     <p className="brand-tagline">Kirim Cepat, Sampai Tepat</p>
                 </div>
 
-                <form className="login-form" onSubmit={handleSubmit}>
+                <form className="login-form" onSubmit={handleSubmit} autoComplete="off">
                     <div className="form-group">
                         <label htmlFor="username">Email / No. HP</label>
                         <input
@@ -57,6 +57,7 @@ const Login = () => {
                             value={formData.username}
                             onChange={handleChange}
                             className="form-input"
+                            autoComplete="off"
                         />
                     </div>
 
@@ -71,6 +72,7 @@ const Login = () => {
                                 value={formData.password}
                                 onChange={handleChange}
                                 className="form-input"
+                                autoComplete="new-password"
                             />
                             <button
                                 type="button"
@@ -81,9 +83,7 @@ const Login = () => {
                                 {showPassword ? <EyeOff size={20} color="#666" /> : <Eye size={20} color="#666" />}
                             </button>
                         </div>
-                        <div className="forgot-password">
-                            <a href="#">Lupa Password?</a>
-                        </div>
+
                     </div>
 
                 </form>
@@ -118,10 +118,7 @@ const Login = () => {
                     </button>
                 </div>
 
-                <div className="login-footer">
-                    Belum punya akun?
-                    <Link to="/register" className="register-link">Daftar Sekarang</Link>
-                </div>
+
             </div>
         </div>
     );

@@ -1,7 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Settings as SettingsIcon, Save, DollarSign, Zap, Clock, Package } from 'lucide-react';
+import { Settings as SettingsIcon, Save, Zap, Clock, Package, FileText } from 'lucide-react';
 import { useLogistics } from '../context/LogisticsContext';
+import { downloadShippingReport } from '../services/reportUtils';
 import '../styles/Settings.css';
 
 const Settings = () => {
@@ -13,14 +14,6 @@ const Settings = () => {
         return <Navigate to="/app" replace />;
     }
 
-    // Calculate Revenues
-    const codRevenue = orders
-        .filter(order => order.status !== 'Dibatalkan' && order.payment === 'COD')
-        .reduce((sum, order) => sum + (parseInt(order.amount.replace(/[^0-9]/g, '')) || 0), 0);
-
-    const nonCodRevenue = orders
-        .filter(order => order.status !== 'Dibatalkan' && order.payment === 'Non-COD')
-        .reduce((sum, order) => sum + (parseInt(order.amount.replace(/[^0-9]/g, '')) || 0), 0);
 
     const [showChart, setShowChart] = useState(true);
     const [hoveredData, setHoveredData] = useState(null);
@@ -75,19 +68,8 @@ const Settings = () => {
         <div className="settings-page">
             <header className="settings-header header-with-toggle">
                 <div>
-                    <h2>Pengaturan & Laporan</h2>
-                    <p>Kelola tarif dan lihat ringkasan pendapatan layanan SwiftGo.</p>
-                </div>
-                <div className="chart-toggle-wrapper">
-                    <span>Tampilkan Grafik</span>
-                    <label className="toggle-switch">
-                        <input
-                            type="checkbox"
-                            checked={showChart}
-                            onChange={() => setShowChart(!showChart)}
-                        />
-                        <span className="slider round"></span>
-                    </label>
+                    <h2>Pengaturan & Grafik Pendapatan</h2>
+                    <p>Kelola tarif layanan SwiftGo.</p>
                 </div>
             </header>
 
@@ -181,28 +163,6 @@ const Settings = () => {
                 </div>
             )}
 
-            <div className="revenue-report-grid">
-                <div className="revenue-report-card cod">
-                    <div className="report-icon">
-                        <DollarSign size={24} />
-                    </div>
-                    <div className="report-info">
-                        <span className="report-label">Total Pendapatan COD</span>
-                        <h3 className="report-value">Rp {codRevenue.toLocaleString()}</h3>
-                    </div>
-                    <div className="report-badge">COD</div>
-                </div>
-                <div className="revenue-report-card non-cod">
-                    <div className="report-icon">
-                        <DollarSign size={24} />
-                    </div>
-                    <div className="report-info">
-                        <span className="report-label">Total Pendapatan Non-COD</span>
-                        <h3 className="report-value">Rp {nonCodRevenue.toLocaleString()}</h3>
-                    </div>
-                    <div className="report-badge">SALDO</div>
-                </div>
-            </div>
 
             <div className="settings-card">
                 <form className="settings-form" onSubmit={handleSubmit}>

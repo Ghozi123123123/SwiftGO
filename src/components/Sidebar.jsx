@@ -29,22 +29,26 @@ const Sidebar = () => {
         {
             path: '/app',
             name: 'Dashboard',
-            icon: <LayoutDashboard size={20} />
+            icon: <LayoutDashboard size={20} />,
+            adminOnly: true
         },
         {
             path: '/app/tracking',
             name: 'Lacak Paket',
-            icon: <Search size={20} />
+            icon: <Search size={20} />,
+            userOnly: true
         },
         {
             path: '/app/shipping',
             name: 'Buat Pengiriman',
-            icon: <ClipboardList size={20} />
+            icon: <ClipboardList size={20} />,
+            adminOnly: true
         },
         {
             path: '/app/orders',
             name: 'Riwayat',
-            icon: <History size={20} />
+            icon: <History size={20} />,
+            adminOnly: true
         },
         {
             path: '/app/settings',
@@ -54,7 +58,11 @@ const Sidebar = () => {
         }
     ];
 
-    const filteredMenuItems = menuItems.filter(item => !item.adminOnly || user?.role === 'admin');
+    const filteredMenuItems = menuItems.filter(item => {
+        if (item.adminOnly && user?.role !== 'admin') return false;
+        if (item.userOnly && user?.role === 'admin') return false;
+        return true;
+    });
 
     return (
         <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
