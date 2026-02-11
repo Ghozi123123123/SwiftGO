@@ -43,7 +43,7 @@ export const LogisticsProvider = ({ children }) => {
     // User state
     const [user, setUser] = useState(() => {
         const savedUser = localStorage.getItem('swiftgo_user');
-        return savedUser ? JSON.parse(savedUser) : { role: 'customer', name: 'ZaraRara', avatar: 'Z' };
+        return savedUser ? JSON.parse(savedUser) : { role: 'customer', name: 'Customer123', avatar: 'C' };
     });
 
     const showNotification = (message, type = 'info') => {

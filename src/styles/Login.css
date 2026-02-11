@@ -253,3 +253,17 @@
     font-weight: 700;
     color: #111827;
 }
+
+.demo-credentials {
+    margin-top: 24px;
+    padding-top: 16px;
+    border-top: 1px solid #E5E7EB;
+    text-align: center;
+}
+
+.demo-credentials p {
+    font-size: 11px;
+    color: #9CA3AF;
+    margin: 4px 0;
+    font-weight: 500;
+}

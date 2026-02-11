@@ -63,6 +63,8 @@ const Shipping = () => {
         setFormData(prev => ({ ...prev, payment }));
     };
 
+
+
     useEffect(() => {
         const l = parseFloat(formData.length) || 0;
         const w = parseFloat(formData.width) || 0;
@@ -338,6 +340,7 @@ const Shipping = () => {
                         <div className="volume-display" style={{ marginTop: '16px', padding: '12px', background: '#F9FAFB', borderRadius: '8px', fontSize: '14px', color: '#4B5563' }}>
                             Total Volume: <strong>{volume.toLocaleString()} cm³</strong>
                         </div>
+
                     </div>
 
                     {/* Section 4: Layanan & Pembayaran */}
@@ -412,6 +415,7 @@ const Shipping = () => {
                                 <span>Biaya Layanan</span>
                                 <span>Rp {costs.serviceFee.toLocaleString()}</span>
                             </div>
+
 
                             {costs.discount > 0 && (
                                 <div className="cost-item discount" style={{ color: '#059669' }}>

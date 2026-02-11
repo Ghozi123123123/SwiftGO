@@ -19,7 +19,7 @@ const Navbar = () => {
                     </Link>
 
                     <div className="user-section">
-                        <span className="user-name">ZaraRara</span>
+                        <span className="user-name">Customer123</span>
                         <button className="logout-btn" title="Logout">
                             <LogOut size={18} />
                         </button>

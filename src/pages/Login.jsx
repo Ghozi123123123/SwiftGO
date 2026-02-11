@@ -24,7 +24,7 @@ const Login = () => {
     const handleQuickLogin = (role) => {
         const userData = role === 'admin'
             ? { role: 'admin', name: 'ZaraRara Admin', avatar: 'A' }
-            : { role: 'customer', name: 'ZaraRara', avatar: 'Z' };
+            : { role: 'customer', name: 'Customer123', avatar: 'C' };
 
         setUser(userData);
         navigate(role === 'admin' ? '/app' : '/app/tracking');
@@ -34,7 +34,7 @@ const Login = () => {
         e.preventDefault();
         // In a real app, perform authentication here.
         // For now, default to customer if logged in via form
-        setUser({ role: 'customer', name: 'ZaraRara', avatar: 'Z' });
+        setUser({ role: 'customer', name: 'Customer123', avatar: 'C' });
         navigate('/app/tracking');
     };
 
@@ -118,6 +118,10 @@ const Login = () => {
                     </button>
                 </div>
 
+                <div className="demo-credentials">
+                    <p>Email: customer123@gmail.com</p>
+                    <p>Password: 12345678</p>
+                </div>
 
             </div>
         </div>

@@ -100,9 +100,9 @@ const Sidebar = () => {
             <div className="sidebar-footer">
                 {!isCollapsed && (
                     <div className="user-info">
-                        <div className="user-avatar">{user?.avatar || 'Z'}</div>
+                        <div className="user-avatar">{user?.avatar || 'C'}</div>
                         <div className="user-details">
-                            <span className="user-name">{user?.name || 'ZaraRara'}</span>
+                            <span className="user-name">{user?.name || 'Customer123'}</span>
                             <span className="user-role">
                                 {user?.role === 'admin' ? (
                                     <span className="role-chip admin">

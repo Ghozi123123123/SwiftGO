@@ -146,7 +146,7 @@ const OrderDetail = () => {
             <div className="address-grid">
                 <div className="address-card">
                     <h3 className="card-title"><User size={16} color="#c41e1e" /> Pengirim</h3>
-                    <p className="name">{order.senderName || 'ZaraRara'}</p>
+                    <p className="name">{order.senderName || 'Customer123'}</p>
                     <p className="phone">{order.senderPhone || '087784950041'}</p>
                     <p className="address">{order.senderCity || 'Bandung, Jawa Barat'}</p>
                 </div>
