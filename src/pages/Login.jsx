@@ -42,7 +42,7 @@ const Login = () => {
         <div className="login-container">
             <div className="login-card">
                 <div className="brand-section">
-                    <h1 className="brand-title">SwiftGO</h1>
+                    <h1 className="brand-title">SwiftGo</h1>
                     <p className="brand-tagline">Kirim Cepat, Sampai Tepat</p>
                 </div>
 

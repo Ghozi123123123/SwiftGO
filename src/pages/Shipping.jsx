@@ -1,8 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, Package, User, MapPin, Truck, CreditCard, Zap, Rocket, Banknote, QrCode, Home } from 'lucide-react';
+import { ArrowLeft, Package, User, MapPin, Truck, CreditCard, Zap, Rocket, Banknote, QrCode, Home, Plus, Trash2 } from 'lucide-react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useLogistics } from '../context/LogisticsContext';
+import { INDONESIA_CITIES, INDONESIA_DISTRICTS } from '../data/indonesiaData';
 import '../styles/Shipping.css';
+
+const INDONESIA_PROVINCES = [
+    "Aceh", "Sumatera Utara", "Sumatera Barat", "Riau", "Kepulauan Riau",
+    "Jambi", "Sumatera Selatan", "Bangka Belitung", "Bengkulu", "Lampung",
+    "DKI Jakarta", "Banten", "Jawa Barat", "Jawa Tengah", "DI Yogyakarta",
+    "Jawa Timur", "Bali", "Nusa Tenggara Barat", "Nusa Tenggara Timur",
+    "Kalimantan Barat", "Kalimantan Tengah", "Kalimantan Selatan",
+    "Kalimantan Timur", "Kalimantan Utara", "Sulawesi Utara", "Gorontalo",
+    "Sulawesi Tengah", "Sulawesi Barat", "Sulawesi Selatan", "Sulawesi Tenggara",
+    "Maluku Utara", "Maluku", "Papua Barat", "Papua Barat Daya", "Papua",
+    "Papua Tengah", "Papua Pegunungan", "Papua Selatan"
+];
 
 const Shipping = () => {
     const navigate = useNavigate();
@@ -18,6 +31,7 @@ const Shipping = () => {
         senderProvince: '',
         senderCity: '',
         senderDistrict: '',
+        senderDistrictManual: '',
         senderPostal: '',
 
         receiverName: '',
@@ -26,14 +40,17 @@ const Shipping = () => {
         receiverProvince: '',
         receiverCity: '',
         receiverDistrict: '',
+        receiverDistrictManual: '',
         receiverPostal: '',
 
-        itemName: '',
-        itemType: '',
-        weight: '',
-        length: '',
-        width: '',
-        height: '',
+        items: [{
+            itemName: '',
+            itemType: '',
+            weight: '',
+            length: '',
+            width: '',
+            height: ''
+        }],
 
         service: 'Reguler',
         payment: 'Non-COD'
@@ -47,12 +64,64 @@ const Shipping = () => {
         locationFee: 0,
         discount: 0,
         discountAmount: 0,
+        chargeableWeight: 0,
         total: rates?.baseRate || 10000
     });
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData(prev => {
+            const updated = { ...prev, [name]: value };
+
+            // Reset dependent fields if parent changes
+            if (name === 'senderProvince') {
+                updated.senderCity = '';
+                updated.senderDistrict = '';
+                updated.senderDistrictManual = '';
+                updated.senderPostal = '';
+            }
+            if (name === 'senderCity') {
+                updated.senderDistrict = '';
+                updated.senderDistrictManual = '';
+                updated.senderPostal = '';
+            }
+            if (name === 'senderDistrict') {
+                if (value !== 'Lainnya') {
+                    // Auto-fill postal code
+                    const districts = INDONESIA_DISTRICTS[prev.senderCity] || [];
+                    const districtData = districts.find(d => d.name === value);
+                    if (districtData) updated.senderPostal = districtData.zip;
+                    updated.senderDistrictManual = '';
+                } else {
+                    updated.senderPostal = '';
+                }
+            }
+
+            if (name === 'receiverProvince') {
+                updated.receiverCity = '';
+                updated.receiverDistrict = '';
+                updated.receiverDistrictManual = '';
+                updated.receiverPostal = '';
+            }
+            if (name === 'receiverCity') {
+                updated.receiverDistrict = '';
+                updated.receiverDistrictManual = '';
+                updated.receiverPostal = '';
+            }
+            if (name === 'receiverDistrict') {
+                if (value !== 'Lainnya') {
+                    // Auto-fill postal code
+                    const districts = INDONESIA_DISTRICTS[prev.receiverCity] || [];
+                    const districtData = districts.find(d => d.name === value);
+                    if (districtData) updated.receiverPostal = districtData.zip;
+                    updated.receiverDistrictManual = '';
+                } else {
+                    updated.receiverPostal = '';
+                }
+            }
+
+            return updated;
+        });
     };
 
     const handleServiceSelect = (service) => {
@@ -65,41 +134,114 @@ const Shipping = () => {
 
 
 
+    const addItem = () => {
+        setFormData(prev => ({
+            ...prev,
+            items: [...prev.items, { itemName: '', itemType: '', weight: '', length: '', width: '', height: '' }]
+        }));
+    };
+
+    const removeItem = (index) => {
+        if (formData.items.length <= 1) return;
+        setFormData(prev => ({
+            ...prev,
+            items: prev.items.filter((_, i) => i !== index)
+        }));
+    };
+
+    const handleItemChange = (index, e) => {
+        const { name, value } = e.target;
+        setFormData(prev => {
+            const newItems = [...prev.items];
+            newItems[index] = { ...newItems[index], [name]: value };
+            return { ...prev, items: newItems };
+        });
+    };
+
     useEffect(() => {
-        const l = parseFloat(formData.length) || 0;
-        const w = parseFloat(formData.width) || 0;
-        const h = parseFloat(formData.height) || 0;
-        const vol = l * w * h;
-        setVolume(vol);
+        let totalVol = 0;
+        let totalActualWeight = 0;
+
+        formData.items.forEach(item => {
+            const l = parseFloat(item.length) || 0;
+            const w = parseFloat(item.width) || 0;
+            const h = parseFloat(item.height) || 0;
+            totalVol += (l * w * h) / 6000;
+            totalActualWeight += parseFloat(item.weight) || 0;
+        });
+
+        setVolume(totalVol);
 
         // Cost Calculation
         const base = rates?.baseRate || 10000;
-        const weight = parseFloat(formData.weight) || 0;
-        const weightFee = weight * (rates?.ratePerKg || 5000);
-        let serviceFee = 0;
-        if (formData.service === 'Express') serviceFee = rates?.expressFee || 25000;
-        else if (formData.service === 'Same Day') serviceFee = rates?.sameDayFee || 50000;
+        const rawChargeable = Math.max(totalActualWeight, totalVol);
+        // Custom Rounding: If decimal > 0.50 round up, else round down
+        const roundedWeight = (rawChargeable - Math.floor(rawChargeable)) > 0.50
+            ? Math.ceil(rawChargeable)
+            : Math.floor(rawChargeable);
 
-        // Location Fee Logic
+        const chargeableWeight = roundedWeight;
+        const weightFee = chargeableWeight * 5000;
+        let serviceFee = 0;
+        if (formData.service === 'Reguler') serviceFee = rates?.regulerFee || 2000;
+        else if (formData.service === 'Express') serviceFee = rates?.expressFee || 25000;
+        else if (formData.service === 'Same Day') serviceFee = rates?.sameDayFee || 50000;
+        else if (formData.service === 'Ekonomis') serviceFee = 0;
+
+        // Location Fee Logic (Dynamic based on region gap / "distance")
+        const getRegionWeight = (province) => {
+            const javaBali = ["DKI Jakarta", "Banten", "Jawa Barat", "Jawa Tengah", "DI Yogyakarta", "Jawa Timur", "Bali"];
+            const sumatra = ["Aceh", "Sumatera Utara", "Sumatera Barat", "Riau", "Kepulauan Riau", "Jambi", "Sumatera Selatan", "Bangka Belitung", "Bengkulu", "Lampung"];
+            const kalimantan = ["Kalimantan Barat", "Kalimantan Tengah", "Kalimantan Selatan", "Kalimantan Timur", "Kalimantan Utara"];
+            const sulawesi = ["Sulawesi Utara", "Gorontalo", "Sulawesi Tengah", "Sulawesi Barat", "Sulawesi Selatan", "Sulawesi Tenggara"];
+            const nusaTenggara = ["Nusa Tenggara Barat", "Nusa Tenggara Timur"];
+            const papuaMaluku = ["Maluku Utara", "Maluku", "Papua Barat", "Papua Barat Daya", "Papua", "Papua Tengah", "Papua Pegunungan", "Papua Selatan"];
+
+            if (javaBali.includes(province)) return 1;
+            if (sumatra.includes(province)) return 2;
+            if (kalimantan.includes(province)) return 3;
+            if (sulawesi.includes(province)) return 4;
+            if (nusaTenggara.includes(province)) return 5;
+            if (papuaMaluku.includes(province)) return 6;
+            return 1;
+        };
+
         let locationFee = 0;
         if (formData.senderCity && formData.receiverCity) {
-            if (formData.senderProvince !== formData.receiverProvince) {
-                locationFee = 15000; // Inter-province
-            } else if (formData.senderCity.toLowerCase() !== formData.receiverCity.toLowerCase()) {
-                locationFee = 5000; // Intra-province, different city
+            const sCity = formData.senderCity.toLowerCase();
+            const rCity = formData.receiverCity.toLowerCase();
+
+            if (sCity === rCity) {
+                locationFee = 0; // Same city
+            } else if (formData.senderProvince === formData.receiverProvince) {
+                locationFee = 7000; // Same province, different city
+            } else {
+                const w1 = getRegionWeight(formData.senderProvince);
+                const w2 = getRegionWeight(formData.receiverProvince);
+                if (w1 === w2) {
+                    locationFee = 18000; // Different province, same region
+                } else {
+                    const diff = Math.abs(w1 - w2);
+                    locationFee = 20000 + (diff * 20000); // Cross-region distance based
+                }
             }
         }
 
-        // Loyalty Discount Logic
+        // Loyalty Discount Logic (20% for EVERY 6th shipment with same name & address)
         let discount = 0;
         let discountAmount = 0;
-        if (formData.senderName && formData.senderName.trim() !== '') {
-            const senderOrderCount = orders.filter(order =>
-                order.senderName.toLowerCase() === formData.senderName.trim().toLowerCase()
-            ).length;
+        if (formData.senderName && formData.senderName.trim() !== '' && formData.senderAddress && formData.senderAddress.trim() !== '') {
+            const senderOrderCount = orders.filter(order => {
+                const oName = (order.senderName || '').trim().toLowerCase().replace(/\s+/g, ' ');
+                const oAddr = (order.senderAddress || '').trim().toLowerCase().replace(/\s+/g, ' ');
+                const fName = (formData.senderName || '').trim().toLowerCase().replace(/\s+/g, ' ');
+                const fAddr = (formData.senderAddress || '').trim().toLowerCase().replace(/\s+/g, ' ');
+                return oName === fName && oAddr === fAddr;
+            }).length;
 
-            if (senderOrderCount > 0 && (senderOrderCount + 1) % 5 === 0) {
-                discount = rates?.loyaltyDiscount || 0;
+            // Trigger discount for the 6th, 12th, 18th, etc. shipment
+            if (senderOrderCount > 0 && (senderOrderCount + 1) % 6 === 0) {
+                discount = 20;
                 const subT = base + weightFee + serviceFee + locationFee;
                 discountAmount = (subT * discount) / 100;
             }
@@ -112,39 +254,35 @@ const Shipping = () => {
             locationFee,
             discount,
             discountAmount,
+            chargeableWeight: roundedWeight,
             total: base + weightFee + serviceFee + locationFee - discountAmount
         });
-    }, [formData.length, formData.width, formData.height, formData.weight, formData.service, formData.senderCity, formData.receiverCity, formData.senderProvince, formData.receiverProvince, formData.senderName, rates, orders]);
+    }, [formData.items, formData.service, formData.senderCity, formData.receiverCity, formData.senderProvince, formData.receiverProvince, formData.senderName, rates, orders]);
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
         // Form Validation
-        const requiredFields = {
-            senderName: 'Nama Pengirim',
-            senderPhone: 'No. Telepon Pengirim',
-            senderAddress: 'Alamat Pengirim',
-            senderCity: 'Kota Pengirim',
-            receiverName: 'Nama Penerima',
-            receiverPhone: 'No. Telepon Penerima',
-            receiverAddress: 'Alamat Penerima',
-            receiverCity: 'Kota Penerima',
-            itemName: 'Nama Barang',
-            itemType: 'Jenis Barang',
-            weight: 'Berat Barang',
-            length: 'Panjang',
-            width: 'Lebar',
-            height: 'Tinggi'
-        };
+        const requiredTopFields = [
+            'senderName', 'senderPhone', 'senderAddress', 'senderCity',
+            'receiverName', 'receiverPhone', 'receiverAddress', 'receiverCity'
+        ];
 
-        const missingFields = Object.entries(requiredFields)
-            .filter(([key]) => !formData[key] || formData[key].toString().trim() === '')
-            .map(([_, label]) => label);
+        const missingFields = requiredTopFields.filter(key =>
+            !formData[key] || formData[key].toString().trim() === ''
+        );
 
-        if (missingFields.length > 0) {
-            showNotification(`Mohon lengkapi kolom berikut:\n- ${missingFields.join('\n- ')}`, 'warning');
+        const missingItems = formData.items.some(item =>
+            !item.itemName || !item.itemType || !item.weight || !item.length || !item.width || !item.height
+        );
+
+        if (missingFields.length > 0 || missingItems) {
+            showNotification(`Mohon lengkapi semua kolom data pengirim, penerima, dan detail barang.`, 'warning');
             return;
         }
+
+        const confirmCreate = window.confirm(`Apakah Anda yakin ingin membuat pengiriman ini?\nTotal Biaya: Rp ${costs.total.toLocaleString()}`);
+        if (!confirmCreate) return;
 
         if (formData.payment === 'Non-COD' && balance < costs.total) {
             showNotification(`Saldo tidak mencukupi! Saldo Anda: Rp ${balance.toLocaleString()}. Total Biaya: Rp ${costs.total.toLocaleString()}. Silakan isi saldo terlebih dahulu.`, 'error');
@@ -159,27 +297,24 @@ const Shipping = () => {
             senderAddress: formData.senderAddress,
             senderProvince: formData.senderProvince,
             senderCity: formData.senderCity,
-            senderDistrict: formData.senderDistrict,
+            senderDistrict: formData.senderDistrict === 'Lainnya' ? formData.senderDistrictManual : formData.senderDistrict,
             senderPostal: formData.senderPostal,
             receiverName: formData.receiverName,
             receiverPhone: formData.receiverPhone,
             receiverAddress: formData.receiverAddress,
             receiverProvince: formData.receiverProvince,
             receiverCity: formData.receiverCity,
-            receiverDistrict: formData.receiverDistrict,
+            receiverDistrict: formData.receiverDistrict === 'Lainnya' ? formData.receiverDistrictManual : formData.receiverDistrict,
             receiverPostal: formData.receiverPostal,
             destination: formData.receiverCity,
             status: 'Pending',
             date: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' }),
             amount: `Rp ${costs.total.toLocaleString()}`,
-            item: formData.itemName,
-            itemType: formData.itemType,
-            weight: formData.weight,
-            length: formData.length,
-            width: formData.width,
-            height: formData.height,
+            items: formData.items,
             service: formData.service,
-            payment: formData.payment
+            payment: formData.payment,
+            discountAmount: costs.discountAmount,
+            discountRate: costs.discount
         };
 
         if (formData.payment === 'Non-COD') {
@@ -187,7 +322,7 @@ const Shipping = () => {
         }
 
         addOrder(newOrder);
-        showNotification(formData.payment === 'COD' ? 'Pengiriman Berhasil Dibuat! (Metode COD)' : 'Pengiriman Berhasil Dibuat! Saldo Anda telah terpotong.', 'success');
+        showNotification(formData.payment === 'COD' ? 'Pengiriman Berhasil Dibuat! (Metode COD)' : 'Pengiriman berhasil dibuat! (Metode Non-COD)', 'success');
         navigate('/app/orders');
     };
 
@@ -221,24 +356,67 @@ const Shipping = () => {
                                 <label>Provinsi</label>
                                 <select name="senderProvince" value={formData.senderProvince} onChange={handleChange} className="form-select">
                                     <option value="">Pilih Provinsi</option>
-                                    <option value="DKI Jakarta">DKI Jakarta</option>
-                                    <option value="Jawa Barat">Jawa Barat</option>
-                                    <option value="Jawa Tengah">Jawa Tengah</option>
-                                    <option value="Jawa Timur">Jawa Timur</option>
-                                    <option value="Banten">Banten</option>
+                                    {INDONESIA_PROVINCES.map(prov => (
+                                        <option key={prov} value={prov}>{prov}</option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="form-group">
                                 <label>Kota/Kabupaten</label>
-                                <input type="text" name="senderCity" value={formData.senderCity} onChange={handleChange} className="form-input" placeholder="Kota/Kabupaten" />
+                                <select
+                                    name="senderCity"
+                                    value={formData.senderCity}
+                                    onChange={handleChange}
+                                    className="form-select"
+                                    disabled={!formData.senderProvince}
+                                >
+                                    <option value="">{formData.senderProvince ? 'Pilih Kota/Kabupaten' : 'Pilih Provinsi Terlebih Dahulu'}</option>
+                                    {formData.senderProvince && INDONESIA_CITIES[formData.senderProvince]?.map(city => (
+                                        <option key={city} value={city}>{city}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="form-group">
                                 <label>Kecamatan</label>
-                                <input type="text" name="senderDistrict" value={formData.senderDistrict} onChange={handleChange} className="form-input" placeholder="Kecamatan" />
+                                <select
+                                    name="senderDistrict"
+                                    value={formData.senderDistrict}
+                                    onChange={handleChange}
+                                    className="form-select"
+                                    disabled={!formData.senderCity}
+                                >
+                                    <option value="">{formData.senderCity ? 'Pilih Kecamatan' : 'Pilih Kota Terlebih Dahulu'}</option>
+                                    {(INDONESIA_DISTRICTS[formData.senderCity] || []).map(dist => (
+                                        <option key={dist.name} value={dist.name}>{dist.name}</option>
+                                    ))}
+                                    {formData.senderCity && (
+                                        <option value="Lainnya">Kecamatan Tidak Terdaftar (Ketik Manual)</option>
+                                    )}
+                                </select>
                             </div>
+                            {formData.senderDistrict === 'Lainnya' && (
+                                <div className="form-group">
+                                    <label>Tulis Nama Kecamatan</label>
+                                    <input
+                                        type="text"
+                                        name="senderDistrictManual"
+                                        value={formData.senderDistrictManual}
+                                        onChange={handleChange}
+                                        className="form-input"
+                                        placeholder="Ketik Nama Kecamatan"
+                                    />
+                                </div>
+                            )}
                             <div className="form-group">
                                 <label>Kode Pos</label>
-                                <input type="text" name="senderPostal" value={formData.senderPostal} onChange={handleChange} className="form-input" placeholder="Kode Pos" />
+                                <input
+                                    type="text"
+                                    name="senderPostal"
+                                    value={formData.senderPostal}
+                                    onChange={handleChange}
+                                    className="form-input"
+                                    placeholder="Kode Pos"
+                                />
                             </div>
                             <div className="form-group full-width">
                                 <label>Alamat Lengkap</label>
@@ -266,24 +444,67 @@ const Shipping = () => {
                                 <label>Provinsi</label>
                                 <select name="receiverProvince" value={formData.receiverProvince} onChange={handleChange} className="form-select">
                                     <option value="">Pilih Provinsi</option>
-                                    <option value="DKI Jakarta">DKI Jakarta</option>
-                                    <option value="Jawa Barat">Jawa Barat</option>
-                                    <option value="Jawa Tengah">Jawa Tengah</option>
-                                    <option value="Jawa Timur">Jawa Timur</option>
-                                    <option value="Banten">Banten</option>
+                                    {INDONESIA_PROVINCES.map(prov => (
+                                        <option key={prov} value={prov}>{prov}</option>
+                                    ))}
                                 </select>
                             </div>
                             <div className="form-group">
                                 <label>Kota/Kabupaten</label>
-                                <input type="text" name="receiverCity" value={formData.receiverCity} onChange={handleChange} className="form-input" placeholder="Kota/Kabupaten" />
+                                <select
+                                    name="receiverCity"
+                                    value={formData.receiverCity}
+                                    onChange={handleChange}
+                                    className="form-select"
+                                    disabled={!formData.receiverProvince}
+                                >
+                                    <option value="">{formData.receiverProvince ? 'Pilih Kota/Kabupaten' : 'Pilih Provinsi Terlebih Dahulu'}</option>
+                                    {formData.receiverProvince && INDONESIA_CITIES[formData.receiverProvince]?.map(city => (
+                                        <option key={city} value={city}>{city}</option>
+                                    ))}
+                                </select>
                             </div>
                             <div className="form-group">
                                 <label>Kecamatan</label>
-                                <input type="text" name="receiverDistrict" value={formData.receiverDistrict} onChange={handleChange} className="form-input" placeholder="Kecamatan" />
+                                <select
+                                    name="receiverDistrict"
+                                    value={formData.receiverDistrict}
+                                    onChange={handleChange}
+                                    className="form-select"
+                                    disabled={!formData.receiverCity}
+                                >
+                                    <option value="">{formData.receiverCity ? 'Pilih Kecamatan' : 'Pilih Kota Terlebih Dahulu'}</option>
+                                    {(INDONESIA_DISTRICTS[formData.receiverCity] || []).map(dist => (
+                                        <option key={dist.name} value={dist.name}>{dist.name}</option>
+                                    ))}
+                                    {formData.receiverCity && (
+                                        <option value="Lainnya">Kecamatan Tidak Terdaftar (Ketik Manual)</option>
+                                    )}
+                                </select>
                             </div>
+                            {formData.receiverDistrict === 'Lainnya' && (
+                                <div className="form-group">
+                                    <label>Tulis Nama Kecamatan</label>
+                                    <input
+                                        type="text"
+                                        name="receiverDistrictManual"
+                                        value={formData.receiverDistrictManual}
+                                        onChange={handleChange}
+                                        className="form-input"
+                                        placeholder="Ketik Nama Kecamatan"
+                                    />
+                                </div>
+                            )}
                             <div className="form-group">
                                 <label>Kode Pos</label>
-                                <input type="text" name="receiverPostal" value={formData.receiverPostal} onChange={handleChange} className="form-input" placeholder="Kode Pos" />
+                                <input
+                                    type="text"
+                                    name="receiverPostal"
+                                    value={formData.receiverPostal}
+                                    onChange={handleChange}
+                                    className="form-input"
+                                    placeholder="Kode Pos"
+                                />
                             </div>
                             <div className="form-group full-width">
                                 <label>Alamat Lengkap</label>
@@ -294,51 +515,144 @@ const Shipping = () => {
 
                     {/* Section 3: Detail Barang */}
                     <div className="shipping-card">
-                        <div className="section-header">
-                            <div className="section-number">3</div>
-                            <h2 className="section-title">Detail Barang</h2>
+                        <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                <div className="section-number">3</div>
+                                <h2 className="section-title">Detail Barang</h2>
+                            </div>
+                            <button
+                                type="button"
+                                className="add-item-btn"
+                                onClick={addItem}
+                                style={{
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px',
+                                    padding: '8px 16px',
+                                    background: '#c41e1e',
+                                    color: 'white',
+                                    border: 'none',
+                                    borderRadius: '8px',
+                                    fontSize: '14px',
+                                    fontWeight: '700',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                <Plus size={16} /> Tambah Barang
+                            </button>
                         </div>
-                        <div className="form-grid">
-                            <div className="form-group">
-                                <label>Nama Barang</label>
-                                <input type="text" name="itemName" value={formData.itemName} onChange={handleChange} className="form-input" placeholder="Contoh: Baju, Elektronik" />
-                            </div>
-                            <div className="form-group">
-                                <label>Jenis Barang</label>
-                                <select name="itemType" value={formData.itemType} onChange={handleChange} className="form-select">
-                                    <option value="">Pilih Jenis</option>
-                                    <option value="Dokumen">📄 Dokumen</option>
-                                    <option value="Elektronik">📱 Elektronik</option>
-                                    <option value="Pakaian">👕 Pakaian</option>
-                                    <option value="Makanan">🍔 Makanan</option>
-                                    <option value="Kosmetik">💄 Kosmetik</option>
-                                    <option value="Furniture">🪑 Furniture</option>
-                                    <option value="Lainnya">📦 Lainnya</option>
-                                </select>
-                            </div>
-                            <div className="form-group">
-                                <label>Berat (kg)</label>
-                                <input type="number" name="weight" value={formData.weight} onChange={handleChange} className="form-input" placeholder="0" />
-                            </div>
-                            <div className="form-group full-width">
-                                <div className="dimension-grid">
+
+                        {formData.items.map((item, index) => (
+                            <div key={index} className="item-entry" style={{
+                                marginBottom: index === formData.items.length - 1 ? 0 : '24px',
+                                padding: '20px',
+                                border: '1px solid #eee',
+                                borderRadius: '12px',
+                                position: 'relative'
+                            }}>
+                                {formData.items.length > 1 && (
+                                    <button
+                                        type="button"
+                                        onClick={() => removeItem(index)}
+                                        style={{
+                                            position: 'absolute',
+                                            top: '12px',
+                                            right: '12px',
+                                            background: '#fee2e2',
+                                            color: '#ef4444',
+                                            border: 'none',
+                                            borderRadius: '6px',
+                                            padding: '4px',
+                                            cursor: 'pointer'
+                                        }}
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                )}
+                                <div className="form-grid">
                                     <div className="form-group">
-                                        <label>P (cm)</label>
-                                        <input type="number" name="length" value={formData.length} onChange={handleChange} className="form-input" placeholder="0" />
+                                        <label>Nama Barang</label>
+                                        <input
+                                            type="text"
+                                            name="itemName"
+                                            value={item.itemName}
+                                            onChange={(e) => handleItemChange(index, e)}
+                                            className="form-input"
+                                            placeholder="Contoh: Baju, Elektronik"
+                                        />
                                     </div>
                                     <div className="form-group">
-                                        <label>L (cm)</label>
-                                        <input type="number" name="width" value={formData.width} onChange={handleChange} className="form-input" placeholder="0" />
+                                        <label>Jenis Barang</label>
+                                        <select
+                                            name="itemType"
+                                            value={item.itemType}
+                                            onChange={(e) => handleItemChange(index, e)}
+                                            className="form-select"
+                                        >
+                                            <option value="">Pilih Jenis</option>
+                                            <option value="Dokumen">📄 Dokumen</option>
+                                            <option value="Elektronik">📱 Elektronik</option>
+                                            <option value="Pakaian">👕 Pakaian</option>
+                                            <option value="Makanan">🍔 Makanan</option>
+                                            <option value="Kosmetik">💄 Kosmetik</option>
+                                            <option value="Furniture">🪑 Furniture</option>
+                                            <option value="Lainnya">📦 Lainnya</option>
+                                        </select>
                                     </div>
                                     <div className="form-group">
-                                        <label>T (cm)</label>
-                                        <input type="number" name="height" value={formData.height} onChange={handleChange} className="form-input" placeholder="0" />
+                                        <label>Berat (kg)</label>
+                                        <input
+                                            type="number"
+                                            name="weight"
+                                            value={item.weight}
+                                            onChange={(e) => handleItemChange(index, e)}
+                                            className="form-input"
+                                            placeholder="0"
+                                        />
+                                    </div>
+                                    <div className="form-group full-width">
+                                        <div className="dimension-grid">
+                                            <div className="form-group">
+                                                <label>P (cm)</label>
+                                                <input
+                                                    type="number"
+                                                    name="length"
+                                                    value={item.length}
+                                                    onChange={(e) => handleItemChange(index, e)}
+                                                    className="form-input"
+                                                    placeholder="0"
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>L (cm)</label>
+                                                <input
+                                                    type="number"
+                                                    name="width"
+                                                    value={item.width}
+                                                    onChange={(e) => handleItemChange(index, e)}
+                                                    className="form-input"
+                                                    placeholder="0"
+                                                />
+                                            </div>
+                                            <div className="form-group">
+                                                <label>T (cm)</label>
+                                                <input
+                                                    type="number"
+                                                    name="height"
+                                                    value={item.height}
+                                                    onChange={(e) => handleItemChange(index, e)}
+                                                    className="form-input"
+                                                    placeholder="0"
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        ))}
+
                         <div className="volume-display" style={{ marginTop: '16px', padding: '12px', background: '#F9FAFB', borderRadius: '8px', fontSize: '14px', color: '#4B5563' }}>
-                            Total Volume: <strong>{volume.toLocaleString()} cm³</strong>
+                            Total Volume gabungan: <strong>{volume.toFixed(2)} kg</strong>
                         </div>
 
                     </div>
@@ -353,6 +667,13 @@ const Shipping = () => {
                             <div className="form-group full-width">
                                 <label>Jenis Layanan</label>
                                 <div className="service-selection">
+                                    <div className={`service-card ${formData.service === 'Ekonomis' ? 'active' : ''}`} onClick={() => handleServiceSelect('Ekonomis')}>
+                                        <div className="service-radio"></div>
+                                        <div className="service-info">
+                                            <strong><Package size={16} /> Ekonomis</strong>
+                                            <p>3-7 hari kerja</p>
+                                        </div>
+                                    </div>
                                     <div className={`service-card ${formData.service === 'Reguler' ? 'active' : ''}`} onClick={() => handleServiceSelect('Reguler')}>
                                         <div className="service-radio"></div>
                                         <div className="service-info">
@@ -404,6 +725,19 @@ const Shipping = () => {
                         </div>
                         <div className="cost-breakdown">
                             <div className="cost-item">
+                                <span>Berat Aktual (Total)</span>
+                                <span>{formData.items.reduce((sum, item) => sum + (parseFloat(item.weight) || 0), 0)} kg</span>
+                            </div>
+                            <div className="cost-item">
+                                <span>Berat Volume (Total)</span>
+                                <span>{volume.toFixed(2)} kg</span>
+                            </div>
+                            <div className="cost-item" style={{ fontWeight: 'bold', borderTop: '1px dashed #eee', paddingTop: '8px' }}>
+                                <span>Berat Dihitung</span>
+                                <span>{costs.chargeableWeight} kg</span>
+                            </div>
+                            <div className="cost-divider" style={{ margin: '10px 0' }}></div>
+                            <div className="cost-item">
                                 <span>Biaya Dasar</span>
                                 <span>Rp {costs.base.toLocaleString()}</span>
                             </div>
@@ -415,6 +749,12 @@ const Shipping = () => {
                                 <span>Biaya Layanan</span>
                                 <span>Rp {costs.serviceFee.toLocaleString()}</span>
                             </div>
+                            {costs.locationFee > 0 && (
+                                <div className="cost-item">
+                                    <span>Ongkir</span>
+                                    <span>Rp {costs.locationFee.toLocaleString()}</span>
+                                </div>
+                            )}
 
 
                             {costs.discount > 0 && (

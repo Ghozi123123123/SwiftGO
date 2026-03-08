@@ -173,7 +173,7 @@ const Settings = () => {
                         </h3>
                         <div className="input-grid">
                             <div className="input-group">
-                                <label>Tarif Dasar (Reguler)</label>
+                                <label>Tarif Dasar (Ekonomis)</label>
                                 <div className="input-wrapper">
                                     <span className="prefix">Rp</span>
                                     <input
@@ -237,6 +237,18 @@ const Settings = () => {
                                         type="number"
                                         name="sameDayFee"
                                         value={formData.sameDayFee}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                            </div>
+                            <div className="input-group">
+                                <label>Biaya Reguler</label>
+                                <div className="input-wrapper">
+                                    <span className="prefix">Rp</span>
+                                    <input
+                                        type="number"
+                                        name="regulerFee"
+                                        value={formData.regulerFee || 0}
                                         onChange={handleChange}
                                     />
                                 </div>

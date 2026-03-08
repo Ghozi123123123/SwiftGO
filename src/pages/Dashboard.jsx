@@ -51,7 +51,7 @@ const Dashboard = () => {
     const balanceStats = [
         { label: 'Total Pendapatan', value: `Rp ${totalRevenue.toLocaleString()}`, icon: <TrendingUp size={20} />, color: '#16a34a', adminOnly: true },
         { label: 'Pendapatan COD', value: `Rp ${codRevenue.toLocaleString()}`, icon: <DollarSign size={20} />, color: '#ef4444', adminOnly: true },
-        { label: 'Pendapatan SALDO', value: `Rp ${nonCodRevenue.toLocaleString()}`, icon: <Wallet size={20} />, color: '#16a34a', adminOnly: true },
+        { label: 'Pendapatan NON-COD', value: `Rp ${nonCodRevenue.toLocaleString()}`, icon: <Wallet size={20} />, color: '#16a34a', adminOnly: true },
     ];
 
     const filteredBalanceStats = balanceStats.filter(stat => !stat.adminOnly || user?.role === 'admin');
@@ -142,6 +142,7 @@ const Dashboard = () => {
                     <div className="bar-chart-container">
                         {(() => {
                             const methods = [
+                                { label: 'Ekonomis', key: 'Ekonomis', icon: <Package size={14} />, color: '#ef4444', gradient: 'linear-gradient(to top, #f87171, #fca5a5)' },
                                 { label: 'Reguler', key: 'Reguler', icon: <Truck size={14} />, color: '#ef4444', gradient: 'linear-gradient(to top, #c41e1e, #ef4444)' },
                                 { label: 'Express', key: 'Express', icon: <Zap size={14} />, color: '#ef4444', gradient: 'linear-gradient(to top, #a31919, #c41e1e)' },
                                 { label: 'Same Day', key: 'Same Day', icon: <Rocket size={14} />, color: '#ef4444', gradient: 'linear-gradient(to top, #8b1515, #a31919)' }

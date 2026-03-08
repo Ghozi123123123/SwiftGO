@@ -163,36 +163,156 @@ const OrderDetail = () => {
 
             <div className="item-card">
                 <h3 className="card-title"><PackageIcon size={16} color="#c41e1e" /> Detail Barang</h3>
-                <div className="item-grid">
-                    <div className="item-field">
-                        <label>Nama Barang</label>
-                        <span>{order.item || 'Paket Logistik'}</span>
+
+                {order.items ? (
+                    <div className="items-list-detail">
+                        {order.items.map((item, idx) => (
+                            <div key={idx} className="item-detail-entry" style={{
+                                borderBottom: idx === order.items.length - 1 ? 'none' : '1px solid #f3f4f6',
+                                paddingBottom: '16px',
+                                marginBottom: '16px'
+                            }}>
+                                <div style={{ fontSize: '14px', fontWeight: '800', marginBottom: '8px', color: '#c41e1e' }}>Barang #{idx + 1}</div>
+                                <div className="item-grid">
+                                    <div className="item-field">
+                                        <label>Nama Barang</label>
+                                        <span>{item.itemName}</span>
+                                    </div>
+                                    <div className="item-field">
+                                        <label>Kategori</label>
+                                        <span>{item.itemType}</span>
+                                    </div>
+                                    <div className="item-field">
+                                        <label>Berat</label>
+                                        <span>{item.weight} kg</span>
+                                    </div>
+                                    <div className="item-field">
+                                        <label>Dimensi</label>
+                                        <span>{item.length}x{item.width}x{item.height} cm</span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                        <div className="item-grid">
+                            <div className="item-field">
+                                <label>Layanan</label>
+                                <span>{order.service || 'Reguler'}</span>
+                            </div>
+                            <div className="item-field">
+                                <label>Pembayaran</label>
+                                <span>{order.payment || 'Tunai'}</span>
+                            </div>
+                        </div>
                     </div>
-                    <div className="item-field">
-                        <label>Kategori</label>
-                        <span>{order.itemType || 'UMUM'}</span>
+                ) : (
+                    <div className="item-grid">
+                        <div className="item-field">
+                            <label>Nama Barang</label>
+                            <span>{order.item || 'Paket Logistik'}</span>
+                        </div>
+                        <div className="item-field">
+                            <label>Kategori</label>
+                            <span>{order.itemType || 'UMUM'}</span>
+                        </div>
+
+                        <div className="item-field">
+                            <label>Berat</label>
+                            <span>{order.weight || '1'} kg</span>
+                        </div>
+                        <div className="item-field">
+                            <label>Dimensi</label>
+                            <span>{order.length || 0}x{order.width || 0}x{order.height || 0} cm</span>
+                        </div>
+                        <div className="item-field">
+                            <label>Layanan</label>
+                            <span>{order.service || 'Reguler'}</span>
+                        </div>
+                        <div className="item-field">
+                            <label>Pembayaran</label>
+                            <span>{order.payment || 'Tunai'}</span>
+                        </div>
+                    </div>
+                )}
+            </div>
+
+            <div className="cost-summary-card">
+                <h3 className="card-title">Ringkasan Biaya</h3>
+                <div className="cost-details">
+                    <div className="cost-row">
+                        <span className="label">Berat Aktual</span>
+                        <span className="value">
+                            {order.items
+                                ? order.items.reduce((sum, i) => sum + (parseFloat(i.weight) || 0), 0)
+                                : (order.weight || 0)} kg
+                        </span>
+                    </div>
+                    <div className="cost-row">
+                        <span className="label">Berat Volume</span>
+                        <span className="value">
+                            {(() => {
+                                if (order.items) {
+                                    const totalVol = order.items.reduce((sum, item) => {
+                                        return sum + ((parseFloat(item.length || 0) * parseFloat(item.width || 0) * parseFloat(item.height || 0)) / 6000);
+                                    }, 0);
+                                    return totalVol.toFixed(2);
+                                }
+                                return ((parseFloat(order.length || 0) * parseFloat(order.width || 0) * parseFloat(order.height || 0)) / 6000).toFixed(2);
+                            })()} kg
+                        </span>
+                    </div>
+                    <div className="cost-row highlighted">
+                        <span className="label">Berat Dihitung</span>
+                        <span className="value">
+                            {(() => {
+                                let raw = 0;
+                                if (order.items) {
+                                    const totalVol = order.items.reduce((sum, item) => sum + ((parseFloat(item.length || 0) * parseFloat(item.width || 0) * parseFloat(item.height || 0)) / 6000), 0);
+                                    const totalWeight = order.items.reduce((sum, item) => sum + (parseFloat(item.weight) || 0), 0);
+                                    raw = Math.max(totalWeight, totalVol);
+                                } else {
+                                    raw = Math.max(
+                                        parseFloat(order.weight || 0),
+                                        (parseFloat(order.length || 0) * parseFloat(order.width || 0) * parseFloat(order.height || 0)) / 6000
+                                    );
+                                }
+                                return (raw - Math.floor(raw)) > 0.50 ? Math.ceil(raw) : Math.floor(raw);
+                            })()} kg
+                        </span>
+                    </div>
+                    <div className="cost-row">
+                        <span className="label">Tarif Layanan</span>
+                        <span className="value">
+                            Rp {(
+                                (parseFloat(order.amount.replace('Rp ', '').replace(/\./g, '')) || 0) /
+                                (() => {
+                                    let raw = 0;
+                                    if (order.items) {
+                                        const totalVol = order.items.reduce((sum, item) => sum + ((parseFloat(item.length || 0) * parseFloat(item.width || 0) * parseFloat(item.height || 0)) / 6000), 0);
+                                        const totalWeight = order.items.reduce((sum, item) => sum + (parseFloat(item.weight) || 0), 0);
+                                        raw = Math.max(totalWeight, totalVol);
+                                    } else {
+                                        raw = Math.max(
+                                            parseFloat(order.weight || 0),
+                                            (parseFloat(order.length || 0) * parseFloat(order.width || 0) * parseFloat(order.height || 0)) / 6000
+                                        );
+                                    }
+                                    const rounded = (raw - Math.floor(raw)) > 0.50 ? Math.ceil(raw) : Math.floor(raw);
+                                    return rounded || 1;
+                                })()
+                            ).toLocaleString()}/kg
+                        </span>
+                    </div>
+                    <div className="cost-row">
+                        <span className="label">Ongkir</span>
+                        <span className="value">{order.amount}</span>
                     </div>
 
-                    <div className="item-field">
-                        <label>Berat</label>
-                        <span>{order.weight || '1'} kg</span>
+                    <div className="cost-divider-line"></div>
+
+                    <div className="cost-row total">
+                        <span className="label">Total Bayar</span>
+                        <span className="value highlight-total">{order.amount}</span>
                     </div>
-                    <div className="item-field">
-                        <label>Dimensi</label>
-                        <span>{order.length || 0}x{order.width || 0}x{order.height || 0} cm</span>
-                    </div>
-                    <div className="item-field">
-                        <label>Layanan</label>
-                        <span>{order.service || 'Reguler'}</span>
-                    </div>
-                    <div className="item-field">
-                        <label>Pembayaran</label>
-                        <span>{order.payment || 'Tunai'}</span>
-                    </div>
-                </div>
-                <div className="total-divider">
-                    <span className="label">Total Biaya</span>
-                    <span className="amount">{order.amount}</span>
                 </div>
             </div>
 

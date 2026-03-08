@@ -40,7 +40,7 @@ const Register = () => {
         <div className="login-container">
             <div className="login-card register-card">
                 <div className="brand-section">
-                    <h1 className="brand-title">SwiftGO</h1>
+                    <h1 className="brand-title">SwiftGo</h1>
                     <p className="brand-tagline">Gabung Sekarang, Kirim Lebih Cepat</p>
                 </div>
 

@@ -228,18 +228,63 @@
     color: #111827;
 }
 
-.total-divider {
-    border-top: 1px dashed #E5E7EB;
-    padding-top: 20px;
+.cost-summary-card {
+    background: #fdfdfd;
+    padding: 32px;
+    border-radius: 24px;
+    border: 1px solid #E5E7EB;
+    margin-bottom: 24px;
+}
+
+.cost-details {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.cost-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
-.total-divider .amount {
-    font-size: 24px;
+.cost-row .label {
+    font-size: 15px;
+    color: #6B7280;
+    font-weight: 500;
+}
+
+.cost-row .value {
+    font-size: 16px;
+    color: #111827;
+    font-weight: 700;
+}
+
+.cost-row.highlighted .value {
+    color: #b91c1c;
+}
+
+.cost-divider-line {
+    height: 1px;
+    background: #E5E7EB;
+    margin: 8px 0;
+}
+
+.cost-row.total {
+    margin-top: 8px;
+}
+
+.cost-row.total .label {
+    font-size: 18px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.cost-row.total .highlight-total {
+    font-size: 28px;
     font-weight: 900;
-    color: #c41e1e;
+    color: #111827;
+    opacity: 0.8;
 }
 
 .print-btn-large {

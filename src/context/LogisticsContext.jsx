@@ -6,9 +6,11 @@ export const useLogistics = () => useContext(LogisticsContext);
 
 const DEFAULT_RATES = {
     baseRate: 10000,
+    regulerFee: 2000,
     ratePerKg: 5000,
     expressFee: 25000,
     sameDayFee: 50000,
+    ekonomisFee: 0,
     loyaltyDiscount: 10
 };
 

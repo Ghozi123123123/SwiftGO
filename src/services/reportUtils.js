@@ -5,7 +5,7 @@ export const downloadShippingReport = (orders) => {
     const doc = new jsPDF();
 
     // -- Header Section --
-    const title = 'Laporan Rekap Pengiriman SwiftGO';
+    const title = 'Laporan Rekap Pengiriman SwiftGo';
     const subtitle = 'Kirim Cepat, Sampai Tepat';
     const printDate = `Tanggal Cetak: ${new Date().toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}`;
 
@@ -68,8 +68,8 @@ export const downloadShippingReport = (orders) => {
     let y = 90;
 
     // Table Headers
-    const headers = ['No', 'Tanggal', 'Resi', 'Nama', 'Layanan', 'Status', 'Biaya'];
-    const colX = [14, 25, 55, 85, 115, 145, 175];
+    const headers = ['No', 'Tanggal', 'Resi', 'Pengirim', 'Penerima', 'Layanan', 'Status', 'Biaya'];
+    const colX = [14, 22, 40, 68, 100, 135, 155, 177];
 
     // Draw initial header
     drawTableHeader(doc, y, headers, colX);
@@ -77,7 +77,7 @@ export const downloadShippingReport = (orders) => {
 
     // Table Content
     doc.setFont(undefined, 'normal');
-    doc.setFontSize(9);
+    doc.setFontSize(8); // Slightly smaller font to fit more data
     doc.setTextColor(0, 0, 0);
 
     const sortedOrders = [...orders].sort((a, b) => new Date(b.date) - new Date(a.date)); // Sort by date desc
@@ -92,19 +92,19 @@ export const downloadShippingReport = (orders) => {
 
         const date = order.date.split(' ').slice(0, 2).join(' '); // "12 Feb"
         const amount = parseInt(order.amount.replace(/[^0-9]/g, '')) || 0;
-        const nama = order.receiverName.split(' ')[0].substring(0, 10); // First name only
+
+        // Truncate names if they are too long for the column
+        const sender = (order.senderName || '-').substring(0, 15);
+        const receiver = (order.receiverName || '-').substring(0, 15);
 
         doc.text(`${index + 1}`, colX[0], y);
         doc.text(date, colX[1], y);
         doc.text(order.orderNo, colX[2], y);
-        doc.text(nama, colX[3], y); // Using receiver first name as Nama/Identity
-
-        doc.text(order.service || '-', colX[4], y);
-
-        // Status color coding (simple text adjustment here, PDF doesn't support complex CSS)
-        doc.text(order.status, colX[5], y);
-
-        doc.text(`Rp ${amount.toLocaleString('id-ID')}`, colX[6], y);
+        doc.text(sender, colX[3], y);
+        doc.text(receiver, colX[4], y);
+        doc.text(order.service || '-', colX[5], y);
+        doc.text(order.status, colX[6], y);
+        doc.text(`Rp ${amount.toLocaleString('id-ID')}`, colX[7], y);
 
         // Light gray line separator
         doc.setDrawColor(229, 231, 235);

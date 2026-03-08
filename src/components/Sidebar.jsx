@@ -69,7 +69,7 @@ const Sidebar = () => {
             <div className="sidebar-header">
                 <Link to="/app" className="sidebar-brand">
                     <div className="sidebar-logo">
-                        <img src="/favicon.png" alt="SwiftGO Logo" />
+                        <img src="/favicon.png" alt="SwiftGo Logo" />
                     </div>
                     {!isCollapsed && <span className="sidebar-brand-text">SwiftGo</span>}
                 </Link>
