@@ -73,8 +73,8 @@ const createReceiptElement = (order) => {
                     </div>
                     <div style="flex: 1; padding: 10px; display: flex; flex-direction: column; justify-content: center;">
                         <div style="font-size: 32px; font-weight: 900; line-height: 1;">${sortCode}</div>
-                        <div style="font-size: 11px; margin-top: 5px;">Dibuat : ${formatDate(order.date)}</div>
-                        <div style="font-size: 11px;">Estimasi: ${getEstimatedDate(order.date, order.service)}</div>
+                        <div style="font-size: 13px; margin-top: 5px;">Dibuat : ${formatDate(order.date)}</div>
+                        <div style="font-size: 13px;">Estimasi: ${getEstimatedDate(order.date, order.service)}</div>
                     </div>
                 </div>
             </div>
@@ -82,21 +82,21 @@ const createReceiptElement = (order) => {
             <!-- Middle Section -->
             <div style="display: flex; border-bottom: 2px solid #000;">
                 <div style="flex: 2; border-right: 2px solid #000; padding: 10px;">
-                    <div style="font-size: 11px; margin-bottom: 8px;">
+                    <div style="font-size: 14px; margin-bottom: 8px;">
                         <strong>PENGIRIM: ${order.senderName?.toUpperCase() || 'PENGIRIM'}</strong> ${order.senderPhone || ''}
                     </div>
-                    <div style="font-size: 11px; margin-bottom: 15px;">
+                    <div style="font-size: 14px; margin-bottom: 15px;">
                         <strong>PENERIMA: YTH ${order.receiverName?.toUpperCase() || 'PENERIMA'}</strong><br/>
                         ${order.receiverPhone || ''}<br/>
                         ${(order.receiverAddress || '').toUpperCase()}<br/>
                         ${(order.receiverCity || order.destination || '').toUpperCase()}
                     </div>
-                    <div style="font-size: 14px; font-weight: bold; margin-top: 20px;">
+                    <div style="font-size: 16px; font-weight: bold; margin-top: 20px;">
                         ${(order.receiverDistrict || '').toUpperCase()}${order.receiverDistrict ? ',' : ''} ${(order.receiverCity || order.destination || '').toUpperCase()}${(order.receiverProvince || '').toUpperCase() ? ',' : ''} ${(order.receiverProvince || '').toUpperCase()}
                     </div>
                     <div style="margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 8px;">
-                        <div style="font-size: 10px; font-weight: bold; margin-bottom: 4px;">ISI BARANG:</div>
-                        <div style="font-size: 10px; line-height: 1.2;">
+                        <div style="font-size: 12px; font-weight: bold; margin-bottom: 4px;">ISI BARANG:</div>
+                        <div style="font-size: 12px; line-height: 1.2;">
                             ${order.items ?
             order.items.map(i => `${i.itemName} (${i.itemType})`).join(', ') :
             `${order.item || 'Paket Logistik'} (${order.itemType || 'Umum'})`
@@ -123,7 +123,7 @@ const createReceiptElement = (order) => {
             return order.weight || '1';
         })()} kg
                         </div>
-                        <div style="font-size: 12px; line-height: 1.2; margin-bottom: 4px; color: #000; font-weight: 800;">
+                        <div style="font-size: 14px; line-height: 1.2; margin-bottom: 4px; color: #000; font-weight: 800;">
                             ${(() => {
             if (order.items && order.items.length > 0) {
                 return order.items.map((i, idx) => `${i.length}x${i.width}x${i.height}`).join(', ') + ' cm';
@@ -131,7 +131,7 @@ const createReceiptElement = (order) => {
             return `${order.length || 0}x${order.width || 0}x${order.height || 0} cm`;
         })()}
                         </div>
-                        <div style="font-size: 12px; font-weight: bold;">
+                        <div style="font-size: 14px; font-weight: bold;">
                             ${(() => {
             if (order.items && order.items.length > 0) {
                 return `${order.items.length} Barang`;
@@ -139,7 +139,7 @@ const createReceiptElement = (order) => {
             return `1 Barang`;
         })()}
                         </div>
-                        <div style="font-size: 12px; font-weight: bold;">
+                        <div style="font-size: 14px; font-weight: bold;">
                             CW: ${(() => {
             let raw = 0;
             if (order.items) {
@@ -166,14 +166,14 @@ const createReceiptElement = (order) => {
                             -Rp ${order.discountAmount.toLocaleString()}
                         </div>
                         ` : ''}
-                        <div style="font-size: 12px; font-weight: bold;">Total Biaya</div>
+                        <div style="font-size: 14px; font-weight: bold;">Total Biaya</div>
                         <div style="font-size: 20px; font-weight: 900;">${order.amount}</div>
                     </div>
                 </div>
             </div>
             
             <!-- Terms -->
-            <div style="border-bottom: 2px dashed #000; font-size: 8px; padding: 2px 10px; display: flex; justify-content: space-between; color: #555;">
+            <div style="border-bottom: 2px dashed #000; font-size: 10px; padding: 4px 10px; display: flex; justify-content: space-between; color: #555;">
                 <span>Syarat & ketentuan berlaku.</span>
                 <span>Info lebih lanjut: https://swiftgo.com/sk</span>
             </div>
@@ -182,32 +182,32 @@ const createReceiptElement = (order) => {
             <div style="display: flex; padding: 10px;">
                 <div style="flex: 1.5; padding-right: 10px;">
                     <div style="display: flex; align-items: center; margin-bottom: 5px; gap: 10px;">
-                        <div style="background: #333; color: white; padding: 2px 8px; border-radius: 10px; font-size: 10px; font-weight: bold; font-style: italic;">
+                        <div style="background: #333; color: white; padding: 2px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; font-style: italic;">
                             Kirim<span style="color: #ef4444;">Aja</span>
                         </div>
-                        <div style="background: #333; color: white; padding: 2px 8px; font-size: 10px; font-weight: bold;">
+                        <div style="background: #333; color: white; padding: 2px 10px; font-size: 12px; font-weight: bold;">
                             ${(order.service || 'REGULER').toUpperCase().substring(0, 8)}
                         </div>
                     </div>
-                    <div style="font-size: 18px; font-weight: 900; letter-spacing: 1px;">${order.orderNo}</div>
+                    <div style="font-size: 24px; font-weight: 900; letter-spacing: 1px;">${order.orderNo}</div>
                     <div style="margin-bottom: 5px;">
                         <svg class="barcode-small"></svg>
                     </div>
-                    <div style="font-size: 9px; display: grid; grid-template-columns: 80px 1fr; gap: 2px;">
+                    <div style="font-size: 12px; display: grid; grid-template-columns: 100px 1fr; gap: 4px;">
                         <strong>Pengirim</strong> <span>: ${order.senderName?.toUpperCase().substring(0, 15) || 'PENGIRIM'}</span>
                         <strong>Penerima</strong> <span>: ${order.receiverName?.toUpperCase().substring(0, 15) || 'PENERIMA'}</span>
                         <strong>Kota Tujuan</strong> <span>: ${(order.receiverCity || order.destination || '').toUpperCase()}</span>
                         <strong>Isi Barang</strong> <span>: ${order.items ? order.items.map(i => i.itemName.substring(0, 10)).join(', ') : (order.item || 'PAKET').substring(0, 15)}</span>
                     </div>
-                    <div style="font-size: 9px; display: grid; grid-template-columns: 80px 1fr; gap: 2px; margin-top: 5px;">
+                    <div style="font-size: 12px; display: grid; grid-template-columns: 100px 1fr; gap: 4px; margin-top: 8px;">
                         <strong>Dibuat</strong> <span>: ${formatDate(order.date)}</span>
                         <strong>Estimasi</strong> <span>: ${getEstimatedDate(order.date, order.service)}</span>
                     </div>
                 </div>
 
-                <div style="flex: 1; padding-left: 10px; border-left: 1px solid #000; font-size: 9px;">
+                <div style="flex: 1; padding-left: 10px; border-left: 1px solid #000; font-size: 12px;">
                     ${order.discountAmount > 0 ? `
-                    <div style="display: flex; justify-content: space-between; font-size: 8px; color: #ef4444; margin-bottom: 1px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 10px; color: #ef4444; margin-bottom: 2px;">
                         <span>Diskon (${order.discountRate}%)</span>
                         <span>-Rp ${order.discountAmount.toLocaleString()}</span>
                     </div>
@@ -215,7 +215,7 @@ const createReceiptElement = (order) => {
                     <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #000; padding-bottom: 2px; margin-bottom: 2px;">
                         <strong>Total Biaya</strong> <strong>${order.amount}</strong>
                     </div>
-                    <div style="border-top: 2px solid #000; margin-top: 15px; padding-top: 2px; text-align: right; font-size: 12px; font-weight: bold;">
+                    <div style="border-top: 2px solid #000; margin-top: 15px; padding-top: 4px; text-align: right; font-size: 16px; font-weight: bold;">
                         ${(() => {
             if (order.items) {
                 return order.items.reduce((sum, item) => sum + (parseFloat(item.weight) || 0), 0);
