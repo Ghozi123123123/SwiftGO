@@ -30,7 +30,7 @@ import '../styles/OrderList.css';
 import '../styles/ShipmentModal.css';
 
 const OrderList = () => {
-    const { orders, deleteOrder, updateOrderStatus, addBalance, showNotification, user } = useLogistics();
+    const { orders, deleteOrder, updateOrderStatus, showNotification, user } = useLogistics();
     const navigate = useNavigate();
 
     if (user?.role !== 'admin') {
@@ -85,8 +85,8 @@ const OrderList = () => {
     };
 
     const handleCancelClick = (e, order) => {
-        e.stopPropagation();
-        setSelectedOrder(order);
+        if (e && e.stopPropagation) e.stopPropagation();
+        if (order) setSelectedOrder(order);
         setIsCancelConfirmOpen(true);
         setActiveMenuIndex(null);
     };
@@ -94,18 +94,19 @@ const OrderList = () => {
     const handleConfirmCancel = () => {
         if (selectedOrder) {
             updateOrderStatus(selectedOrder.orderNo, 'Dibatalkan');
-
-            // Refund balance if payment was Non-COD
-            if (selectedOrder.payment === 'Non-COD') {
-                const amount = parseInt(selectedOrder.amount.replace(/[^0-9]/g, '')) || 0;
-                addBalance(amount, `Refund Pembatalan ${selectedOrder.orderNo}`);
-                showNotification(`Pesanan dibatalkan. Saldo sebesar Rp ${amount.toLocaleString()} telah dikembalikan ke akun Anda.`, 'success');
-            } else {
-                showNotification('Pesanan telah dibatalkan.', 'info');
-            }
-
+            showNotification('Pesanan telah dibatalkan.', 'info');
             setIsCancelConfirmOpen(false);
             setIsModalOpen(false);
+        }
+    };
+
+    const handleDeleteOrder = (e, order) => {
+        e.stopPropagation();
+        const confirmDelete = window.confirm(`Apakah Anda yakin ingin menghapus pesanan ${order.orderNo}?`);
+        if (confirmDelete) {
+            deleteOrder(order.orderNo);
+            showNotification(`Pesanan ${order.orderNo} telah dihapus.`, 'success');
+            setActiveMenuIndex(null);
         }
     };
 
@@ -261,8 +262,10 @@ const OrderList = () => {
                                             </button>
                                             {activeMenuIndex === index && (
                                                 <div className="dropdown-menu">
-
                                                     <button onClick={() => handleRowClick(order)}><Compass size={14} /> Tracking</button>
+                                                    <button onClick={(e) => handleDeleteOrder(e, order)} className="delete-option">
+                                                        <Trash2 size={14} /> Hapus Pesanan
+                                                    </button>
                                                 </div>
                                             )}
                                         </div>
@@ -464,7 +467,7 @@ const OrderList = () => {
                                 Sembunyikan Detail Status
                             </button>
                             <div className="modal-actions" style={{ marginTop: '10px' }}>
-                                <button className="cancel-btn" onClick={handleCancelClick} style={{ width: '100%', marginTop: 0 }}>
+                                <button className="cancel-btn" onClick={(e) => handleCancelClick(e, selectedOrder)} style={{ width: '100%', marginTop: 0 }}>
                                     Batalkan Pengiriman
                                 </button>
                             </div>
@@ -475,13 +478,13 @@ const OrderList = () => {
 
             {/* Confirmation Modal */}
             {isCancelConfirmOpen && (
-                <div className="confirmation-modal" onClick={handleCancelNo}>
+                <div className="confirmation-modal" onClick={() => setIsCancelConfirmOpen(false)}>
                     <div className="confirmation-content" onClick={(e) => e.stopPropagation()}>
                         <h3>Konfirmasi Pembatalan</h3>
                         <p>Apakah anda yakin ingin membatalkan pengiriman?</p>
                         <div className="confirmation-buttons">
                             <button className="btn-yes" onClick={handleConfirmCancel}>Iya</button>
-                            <button className="btn-no" onClick={handleCancelNo}>Tidak</button>
+                            <button className="btn-no" onClick={() => setIsCancelConfirmOpen(false)}>Tidak</button>
                         </div>
                     </div>
                 </div>
@@ -489,11 +492,11 @@ const OrderList = () => {
 
             {/* Receipt Preview Modal */}
             {isPreviewModalOpen && (
-                <div className="receipt-preview-overlay" onClick={closePreviewModal}>
+                <div className="receipt-preview-overlay" onClick={() => setIsPreviewModalOpen(false)}>
                     <div className="receipt-preview-content" onClick={(e) => e.stopPropagation()}>
                         <div className="preview-header">
                             <h3>Pratinjau Struk - {selectedOrder?.orderNo}</h3>
-                            <button className="close-preview" onClick={closePreviewModal}>
+                            <button className="close-preview" onClick={() => setIsPreviewModalOpen(false)}>
                                 <X size={20} />
                             </button>
                         </div>

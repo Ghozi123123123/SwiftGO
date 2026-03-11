@@ -37,7 +37,7 @@ const getRegionWeight = (province) => {
 
 const Shipping = () => {
     const navigate = useNavigate();
-    const { addOrder, rates, balance, deductBalance, orders, showNotification, user } = useLogistics();
+    const { addOrder, rates, orders, showNotification, user } = useLogistics();
 
     if (user?.role !== 'admin') {
         return <Navigate to="/app/tracking" replace />;
@@ -296,11 +296,7 @@ const Shipping = () => {
         const confirmCreate = window.confirm(`Apakah Anda yakin ingin membuat pengiriman ini?\nTotal Biaya: Rp ${costs.total.toLocaleString()}`);
         if (!confirmCreate) return;
 
-        if (formData.payment === 'Non-COD' && balance < costs.total) {
-            showNotification(`Saldo tidak mencukupi! Saldo Anda: Rp ${balance.toLocaleString()}. Total Biaya: Rp ${costs.total.toLocaleString()}. Silakan isi saldo terlebih dahulu.`, 'error');
-            navigate('/app');
-            return;
-        }
+
 
         const newOrder = {
             orderNo: `SWG-${Math.floor(1000 + Math.random() * 9000)}`,
@@ -331,9 +327,7 @@ const Shipping = () => {
             estimatedDays: estimation?.formattedEstimation
         };
 
-        if (formData.payment === 'Non-COD') {
-            deductBalance(costs.total, `Pembayaran ${newOrder.orderNo}`);
-        }
+
 
         addOrder(newOrder);
         showNotification(formData.payment === 'COD' ? 'Pengiriman Berhasil Dibuat! (Metode COD)' : 'Pengiriman berhasil dibuat! (Metode Non-COD)', 'success');

@@ -27,17 +27,6 @@ export const LogisticsProvider = ({ children }) => {
         return savedRates ? JSON.parse(savedRates) : DEFAULT_RATES;
     });
 
-    // Load balance from localStorage on init
-    const [balance, setBalance] = useState(() => {
-        const savedBalance = localStorage.getItem('swiftgo_balance');
-        return savedBalance ? Number(savedBalance) : 0;
-    });
-
-    const [balanceHistory, setBalanceHistory] = useState(() => {
-        const savedHistory = localStorage.getItem('swiftgo_balance_history');
-        return savedHistory ? JSON.parse(savedHistory) : [];
-    });
-
     const [recentTracking, setRecentTracking] = useState([]);
     const [currentOrder, setCurrentOrder] = useState(null);
     const [notification, setNotification] = useState({ show: false, message: '', type: 'info' });
@@ -65,16 +54,6 @@ export const LogisticsProvider = ({ children }) => {
         localStorage.setItem('swiftgo_rates', JSON.stringify(rates));
     }, [rates]);
 
-    // Save balance to localStorage when it changes
-    useEffect(() => {
-        localStorage.setItem('swiftgo_balance', balance.toString());
-    }, [balance]);
-
-    // Save balance history to localStorage
-    useEffect(() => {
-        localStorage.setItem('swiftgo_balance_history', JSON.stringify(balanceHistory));
-    }, [balanceHistory]);
-
     // Save user to localStorage
     useEffect(() => {
         localStorage.setItem('swiftgo_user', JSON.stringify(user));
@@ -95,30 +74,6 @@ export const LogisticsProvider = ({ children }) => {
         setRates(newRates);
     };
 
-    const addBalance = (amount, description = 'Isi Saldo (Top Up)') => {
-        const numAmount = Number(amount);
-        setBalance(prev => prev + numAmount);
-        setBalanceHistory(prev => [{
-            id: Date.now(),
-            type: 'increase',
-            amount: numAmount,
-            description: description,
-            date: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-        }, ...prev].slice(0, 10)); // Keep last 10
-    };
-
-    const deductBalance = (amount, description = 'Pembayaran Pengiriman') => {
-        const numAmount = Number(amount);
-        setBalance(prev => prev - numAmount);
-        setBalanceHistory(prev => [{
-            id: Date.now(),
-            type: 'decrease',
-            amount: numAmount,
-            description: description,
-            date: new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' })
-        }, ...prev].slice(0, 10)); // Keep last 10
-    };
-
     const deleteOrder = (orderNo) => {
         setOrders(prev => prev.filter(order => order.orderNo !== orderNo));
     };
@@ -136,10 +91,6 @@ export const LogisticsProvider = ({ children }) => {
         updateOrderStatus,
         rates,
         updateRates,
-        balance,
-        balanceHistory,
-        addBalance,
-        deductBalance,
         notification,
         showNotification,
         recentTracking,

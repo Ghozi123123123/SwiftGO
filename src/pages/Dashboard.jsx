@@ -21,7 +21,7 @@ import '../styles/Dashboard.css';
 
 const Dashboard = () => {
     const navigate = useNavigate();
-    const { orders, balance, balanceHistory, showNotification, user } = useLogistics();
+    const { orders, showNotification, user } = useLogistics();
 
     if (user?.role !== 'admin') {
         return <Navigate to="/app/tracking" replace />;
@@ -48,13 +48,13 @@ const Dashboard = () => {
         .filter(order => order.status !== 'Dibatalkan' && (order.payment === 'Non-COD' || !order.payment))
         .reduce((sum, order) => sum + (parseInt(order.amount.replace(/[^0-9]/g, '')) || 0), 0);
 
-    const balanceStats = [
+    const revenueStats = [
         { label: 'Total Pendapatan', value: `Rp ${totalRevenue.toLocaleString()}`, icon: <TrendingUp size={20} />, color: '#16a34a', adminOnly: true },
         { label: 'Pendapatan COD', value: `Rp ${codRevenue.toLocaleString()}`, icon: <DollarSign size={20} />, color: '#ef4444', adminOnly: true },
         { label: 'Pendapatan NON-COD', value: `Rp ${nonCodRevenue.toLocaleString()}`, icon: <Wallet size={20} />, color: '#16a34a', adminOnly: true },
     ];
 
-    const filteredBalanceStats = balanceStats.filter(stat => !stat.adminOnly || user?.role === 'admin');
+    const filteredRevenueStats = revenueStats.filter(stat => !stat.adminOnly || user?.role === 'admin');
 
     const otherStats = [
         { label: 'Total Pesanan', value: orders.length.toLocaleString(), icon: <Package size={20} />, color: '#c41e1e' },
@@ -88,8 +88,8 @@ const Dashboard = () => {
             </header>
 
 
-            <div className="balance-stats-grid animate-slide-up">
-                {filteredBalanceStats.map((stat, index) => (
+            <div className="revenue-stats-grid animate-slide-up">
+                {filteredRevenueStats.map((stat, index) => (
                     <div
                         key={index}
                         className={`stat-card balance-card ${stat.label === 'Total Pendapatan' ? 'clickable' : ''} revenue-card`}

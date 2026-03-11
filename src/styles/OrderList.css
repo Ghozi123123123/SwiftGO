@@ -413,6 +413,18 @@
     color: #EF4444;
 }
 
+.dropdown-menu button.delete-option {
+    color: #EF4444;
+}
+
+.dropdown-menu button.delete-option svg {
+    color: #EF4444;
+}
+
+.dropdown-menu button.delete-option:hover {
+    background: #FEF2F2;
+}
+
 /* Color Utilities */
 .text-blue-bold {
     color: #2563eb;
