@@ -3,6 +3,7 @@ import { ArrowLeft, Package, User, MapPin, Truck, CreditCard, Zap, Rocket, Bankn
 import { useNavigate, Navigate } from 'react-router-dom';
 import { useLogistics } from '../context/LogisticsContext';
 import { INDONESIA_CITIES, INDONESIA_DISTRICTS } from '../data/indonesiaData';
+import { calculateEstimation } from '../services/estimationUtils';
 import '../styles/Shipping.css';
 
 const INDONESIA_PROVINCES = [
@@ -16,6 +17,23 @@ const INDONESIA_PROVINCES = [
     "Maluku Utara", "Maluku", "Papua Barat", "Papua Barat Daya", "Papua",
     "Papua Tengah", "Papua Pegunungan", "Papua Selatan"
 ];
+
+const getRegionWeight = (province) => {
+    const javaBali = ["DKI Jakarta", "Banten", "Jawa Barat", "Jawa Tengah", "DI Yogyakarta", "Jawa Timur", "Bali"];
+    const sumatra = ["Aceh", "Sumatera Utara", "Sumatera Barat", "Riau", "Kepulauan Riau", "Jambi", "Sumatera Selatan", "Bangka Belitung", "Bengkulu", "Lampung"];
+    const kalimantan = ["Kalimantan Barat", "Kalimantan Tengah", "Kalimantan Selatan", "Kalimantan Timur", "Kalimantan Utara"];
+    const sulawesi = ["Sulawesi Utara", "Gorontalo", "Sulawesi Tengah", "Sulawesi Barat", "Sulawesi Selatan", "Sulawesi Tenggara"];
+    const nusaTenggara = ["Nusa Tenggara Barat", "Nusa Tenggara Timur"];
+    const papuaMaluku = ["Maluku Utara", "Maluku", "Papua Barat", "Papua Barat Daya", "Papua", "Papua Tengah", "Papua Pegunungan", "Papua Selatan"];
+
+    if (javaBali.includes(province)) return 1;
+    if (sumatra.includes(province)) return 2;
+    if (kalimantan.includes(province)) return 3;
+    if (sulawesi.includes(province)) return 4;
+    if (nusaTenggara.includes(province)) return 5;
+    if (papuaMaluku.includes(province)) return 6;
+    return 1;
+};
 
 const Shipping = () => {
     const navigate = useNavigate();
@@ -57,6 +75,7 @@ const Shipping = () => {
     });
 
     const [volume, setVolume] = useState(0);
+    const [estimation, setEstimation] = useState(null);
     const [costs, setCosts] = useState({
         base: rates?.baseRate || 10000,
         weightFee: 0,
@@ -184,27 +203,12 @@ const Shipping = () => {
         const weightFee = chargeableWeight * 5000;
         let serviceFee = 0;
         if (formData.service === 'Reguler') serviceFee = rates?.regulerFee || 2000;
-        else if (formData.service === 'Express') serviceFee = rates?.expressFee || 25000;
+        else if (formData.service === 'Ekspress') serviceFee = rates?.expressFee || 25000;
         else if (formData.service === 'Same Day') serviceFee = rates?.sameDayFee || 50000;
         else if (formData.service === 'Ekonomis') serviceFee = 0;
 
         // Location Fee Logic (Dynamic based on region gap / "distance")
-        const getRegionWeight = (province) => {
-            const javaBali = ["DKI Jakarta", "Banten", "Jawa Barat", "Jawa Tengah", "DI Yogyakarta", "Jawa Timur", "Bali"];
-            const sumatra = ["Aceh", "Sumatera Utara", "Sumatera Barat", "Riau", "Kepulauan Riau", "Jambi", "Sumatera Selatan", "Bangka Belitung", "Bengkulu", "Lampung"];
-            const kalimantan = ["Kalimantan Barat", "Kalimantan Tengah", "Kalimantan Selatan", "Kalimantan Timur", "Kalimantan Utara"];
-            const sulawesi = ["Sulawesi Utara", "Gorontalo", "Sulawesi Tengah", "Sulawesi Barat", "Sulawesi Selatan", "Sulawesi Tenggara"];
-            const nusaTenggara = ["Nusa Tenggara Barat", "Nusa Tenggara Timur"];
-            const papuaMaluku = ["Maluku Utara", "Maluku", "Papua Barat", "Papua Barat Daya", "Papua", "Papua Tengah", "Papua Pegunungan", "Papua Selatan"];
 
-            if (javaBali.includes(province)) return 1;
-            if (sumatra.includes(province)) return 2;
-            if (kalimantan.includes(province)) return 3;
-            if (sulawesi.includes(province)) return 4;
-            if (nusaTenggara.includes(province)) return 5;
-            if (papuaMaluku.includes(province)) return 6;
-            return 1;
-        };
 
         let locationFee = 0;
         if (formData.senderCity && formData.receiverCity) {
@@ -245,6 +249,14 @@ const Shipping = () => {
                 const subT = base + weightFee + serviceFee + locationFee;
                 discountAmount = (subT * discount) / 100;
             }
+        }
+
+        // Calculate Estimation
+        if (formData.receiverProvince && formData.service) {
+            const est = calculateEstimation(formData.receiverProvince, formData.service);
+            setEstimation(est);
+        } else {
+            setEstimation(null);
         }
 
         setCosts({
@@ -314,7 +326,9 @@ const Shipping = () => {
             service: formData.service,
             payment: formData.payment,
             discountAmount: costs.discountAmount,
-            discountRate: costs.discount
+            discountRate: costs.discount,
+            estimatedArrival: estimation?.formattedArrivalDate,
+            estimatedDays: estimation?.formattedEstimation
         };
 
         if (formData.payment === 'Non-COD') {
@@ -516,7 +530,7 @@ const Shipping = () => {
                     {/* Section 3: Detail Barang */}
                     <div className="shipping-card">
                         <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                                 <div className="section-number">3</div>
                                 <h2 className="section-title">Detail Barang</h2>
                             </div>
@@ -681,10 +695,10 @@ const Shipping = () => {
                                             <p>3-5 hari kerja</p>
                                         </div>
                                     </div>
-                                    <div className={`service-card ${formData.service === 'Express' ? 'active' : ''}`} onClick={() => handleServiceSelect('Express')}>
+                                    <div className={`service-card ${formData.service === 'Ekspress' ? 'active' : ''}`} onClick={() => handleServiceSelect('Ekspress')}>
                                         <div className="service-radio"></div>
                                         <div className="service-info">
-                                            <strong><Zap size={16} /> Express</strong>
+                                            <strong><Zap size={16} /> Ekspress</strong>
                                             <p>1-2 hari kerja</p>
                                         </div>
                                     </div>
@@ -750,10 +764,20 @@ const Shipping = () => {
                                 <span>Rp {costs.serviceFee.toLocaleString()}</span>
                             </div>
                             {costs.locationFee > 0 && (
-                                <div className="cost-item">
-                                    <span>Ongkir</span>
-                                    <span>Rp {costs.locationFee.toLocaleString()}</span>
-                                </div>
+                                <>
+                                    <div className="cost-item" style={{ fontSize: '15px', color: '#1e293b' }}>
+                                        <span>Zona Pengiriman</span>
+                                        <span style={{ fontWeight: '700' }}>
+                                            {formData.senderProvince === formData.receiverProvince ? "Luar Kota" :
+                                                getRegionWeight(formData.senderProvince) === getRegionWeight(formData.receiverProvince) ? "Luar Provinsi" :
+                                                    "Luar Pulau"}
+                                        </span>
+                                    </div>
+                                    <div className="cost-item" style={{ fontSize: '15px' }}>
+                                        <span>Ongkir</span>
+                                        <span>Rp {costs.locationFee.toLocaleString()}</span>
+                                    </div>
+                                </>
                             )}
 
 
@@ -764,6 +788,24 @@ const Shipping = () => {
                                 </div>
                             )}
                             <div className="cost-divider"></div>
+                            {estimation && (
+                                <div className="estimation-info" style={{
+                                    background: '#F0FDF4',
+                                    padding: '12px',
+                                    borderRadius: '8px',
+                                    marginBottom: '10px',
+                                    border: '1px solid #DCFCE7'
+                                }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px', fontSize: '13px', color: '#15803d' }}>
+                                        <span>Estimasi Pengiriman:</span>
+                                        <strong>{estimation.formattedEstimation}</strong>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '13px', color: '#15803d' }}>
+                                        <span>Estimasi Sampai:</span>
+                                        <strong>{estimation.formattedArrivalDate}</strong>
+                                    </div>
+                                </div>
+                            )}
                             <div className="cost-item subtotal">
                                 <span>Subtotal</span>
                                 <span>Rp {(costs.base + costs.weightFee + costs.serviceFee + costs.locationFee).toLocaleString()}</span>

@@ -126,6 +126,16 @@ const Tracking = () => {
                                         const { step } = getStatusState(foundOrder.status);
                                         return (
                                             <>
+                                                {step < 4 && foundOrder.estimatedArrival && (
+                                                    <div className="timeline-row">
+                                                        <div className="timeline-date" style={{ color: '#15803d', fontWeight: 'bold' }}>ESTIMASI</div>
+                                                        <div className="timeline-marker" style={{ background: '#F0FDF4', color: '#16A34A', border: '2px dashed #16A34A' }}><Check size={14} /></div>
+                                                        <div className="timeline-info">
+                                                            <h4 style={{ color: '#15803d' }}>Estimasi Sampai di Tujuan</h4>
+                                                            <p>Paket diperkirakan sampai pada <strong>{foundOrder.estimatedArrival}</strong> ({foundOrder.estimatedDays}).</p>
+                                                        </div>
+                                                    </div>
+                                                )}
                                                 {step >= 4 && (
                                                     <div className="timeline-row">
                                                         <div className="timeline-date">15:30</div>
@@ -188,7 +198,17 @@ const Tracking = () => {
                                     <table className="product-details-table">
                                         <tbody>
                                             <tr><td>Layanan</td><td>SwiftGo {foundOrder.service}</td></tr>
-                                            <tr><td>Nama Barang</td><td>{foundOrder.item}</td></tr>
+                                            <tr><td>Nama Barang</td><td>
+                                                {foundOrder.items
+                                                    ? foundOrder.items.map(i => i.itemName).join(', ')
+                                                    : (foundOrder.item || '-')}
+                                            </td></tr>
+                                            {foundOrder.estimatedArrival && (
+                                                <>
+                                                    <tr><td>Estimasi Pengiriman</td><td>{foundOrder.estimatedDays}</td></tr>
+                                                    <tr><td>Estimasi Tiba</td><td style={{ fontWeight: 'bold', color: '#15803d' }}>{foundOrder.estimatedArrival}</td></tr>
+                                                </>
+                                            )}
                                             <tr><td>Status</td><td><span className={`status-pill ${foundOrder.status.toLowerCase()}`}>{foundOrder.status}</span></td></tr>
                                         </tbody>
                                     </table>

@@ -224,9 +224,30 @@ const OrderList = () => {
                                 </td>
                                 <td className="col-paket">
                                     <div className="paket-content">
-                                        <div className="item-name-row">{order.item}</div>
-                                        <div className="item-spec-row">Berat: {order.weight} kg</div>
-                                        <div className="item-spec-row">Dimensi: {order.length}x{order.width}x{order.height} cm</div>
+                                        <div className="item-name-row">
+                                            {order.items
+                                                ? order.items.map(i => i.itemName).join(', ')
+                                                : (order.item || 'Paket Logistik')}
+                                        </div>
+                                        <div className="item-spec-row">
+                                            Berat: {(() => {
+                                                if (order.items) {
+                                                    return order.items.reduce((sum, item) => sum + (parseFloat(item.weight) || 0), 0);
+                                                }
+                                                return order.weight || '1';
+                                            })()} kg
+                                        </div>
+                                        <div className="item-spec-row">
+                                            Dimensi: {(() => {
+                                                if (order.items && order.items.length > 0) {
+                                                    if (order.items.length === 1) {
+                                                        return `${order.items[0].length}x${order.items[0].width}x${order.items[0].height} cm`;
+                                                    }
+                                                    return `${order.items.length} Barang (Multi-item)`;
+                                                }
+                                                return `${order.length || 0}x${order.width || 0}x${order.height || 0} cm`;
+                                            })()}
+                                        </div>
                                     </div>
                                 </td>
                                 <td className="col-aksi">
@@ -398,7 +419,11 @@ const OrderList = () => {
                                             <tbody>
                                                 <tr>
                                                     <td>Nama Barang</td>
-                                                    <td>{selectedOrder.item || '-'}</td>
+                                                    <td>
+                                                        {selectedOrder.items
+                                                            ? selectedOrder.items.map(i => i.itemName).join(', ')
+                                                            : (selectedOrder.item || '-')}
+                                                    </td>
                                                 </tr>
                                                 <tr>
                                                     <td>Kategori</td>
@@ -406,11 +431,25 @@ const OrderList = () => {
                                                 </tr>
                                                 <tr>
                                                     <td>Berat</td>
-                                                    <td>{selectedOrder.weight || '0'} kg</td>
+                                                    <td>
+                                                        {selectedOrder.items
+                                                            ? selectedOrder.items.reduce((sum, item) => sum + (parseFloat(item.weight) || 0), 0)
+                                                            : (selectedOrder.weight || '0')} kg
+                                                    </td>
                                                 </tr>
                                                 <tr>
                                                     <td>Dimensi</td>
-                                                    <td>{selectedOrder.length || 0}x{selectedOrder.width || 0}x{selectedOrder.height || 0} cm</td>
+                                                    <td>
+                                                        {(() => {
+                                                            if (selectedOrder.items && selectedOrder.items.length > 0) {
+                                                                if (selectedOrder.items.length === 1) {
+                                                                    return `${selectedOrder.items[0].length}x${selectedOrder.items[0].width}x${selectedOrder.items[0].height} cm`;
+                                                                }
+                                                                return `${selectedOrder.items.length} Barang (Multi-item)`;
+                                                            }
+                                                            return `${selectedOrder.length || 0}x${selectedOrder.width || 0}x${selectedOrder.height || 0} cm`;
+                                                        })()}
+                                                    </td>
                                                 </tr>
                                             </tbody>
                                         </table>

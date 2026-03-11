@@ -59,7 +59,7 @@ const createReceiptElement = (order) => {
                     <div style="margin-bottom: 5px;">
                         <svg class="barcode-main"></svg>
                     </div>
-                    <div style="font-size: 10px; font-weight: bold;">POS SWIFTGO ${originCode}</div>
+
                 </div>
                 <div style="flex: 1; display: flex; flex-direction: column;">
                     <div style="display: flex; border-bottom: 2px solid #000;">
@@ -106,7 +106,10 @@ const createReceiptElement = (order) => {
                     <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
                         <div style="background: #000; color: white; font-weight: bold; padding: 2px 8px; border-radius: 4px;">KT</div>
                         <div style="text-align: right; font-size: 10px; color: #555;">
-                            ${(order.itemType || 'PAKET').toUpperCase()}
+                            ${(order.items?.length > 0
+            ? [...new Set(order.items.map(i => i.itemType))].join(', ')
+            : (order.itemType || 'PAKET')
+        ).toUpperCase()}
                         </div>
                     </div>
                 </div>
@@ -120,12 +123,20 @@ const createReceiptElement = (order) => {
             return order.weight || '1';
         })()} kg
                         </div>
+                        <div style="font-size: 12px; line-height: 1.2; margin-bottom: 4px; color: #000; font-weight: 800;">
+                            ${(() => {
+            if (order.items && order.items.length > 0) {
+                return order.items.map((i, idx) => `${i.length}x${i.width}x${i.height}`).join(', ') + ' cm';
+            }
+            return `${order.length || 0}x${order.width || 0}x${order.height || 0} cm`;
+        })()}
+                        </div>
                         <div style="font-size: 12px; font-weight: bold;">
                             ${(() => {
             if (order.items && order.items.length > 0) {
                 return `${order.items.length} Barang`;
             }
-            return `${order.length || 0}x${order.width || 0}x${order.height || 0} cm`;
+            return `1 Barang`;
         })()}
                         </div>
                         <div style="font-size: 12px; font-weight: bold;">
@@ -145,9 +156,7 @@ const createReceiptElement = (order) => {
         })()} kg
                         </div>
                     </div>
-                    <div style="border-bottom: 2px solid #000; padding: 5px 10px;">
-                         <div style="font-size: 36px; font-weight: 900; text-align: center;">1/1</div>
-                    </div>
+
                     <div style="flex: 1; padding: 10px;">
                         ${order.discountAmount > 0 ? `
                         <div style="font-size: 10px; color: #ef4444; font-weight: bold; margin-bottom: 2px;">
@@ -227,6 +236,7 @@ const applyBarcodes = (container, orderNo) => {
         JsBarcode(container.querySelector('.barcode-main'), orderNo, {
             format: "CODE128",
             lineColor: "#000",
+            background: "#ffffff",
             width: 2,
             height: 50,
             displayValue: false,
@@ -236,6 +246,7 @@ const applyBarcodes = (container, orderNo) => {
         JsBarcode(container.querySelector('.barcode-small'), orderNo, {
             format: "CODE128",
             lineColor: "#000",
+            background: "#ffffff",
             width: 1.5,
             height: 30,
             displayValue: false,
