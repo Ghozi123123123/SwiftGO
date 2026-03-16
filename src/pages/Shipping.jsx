@@ -77,14 +77,14 @@ const Shipping = () => {
     const [volume, setVolume] = useState(0);
     const [estimation, setEstimation] = useState(null);
     const [costs, setCosts] = useState({
-        base: rates?.baseRate || 10000,
+        base: 0,
         weightFee: 0,
         serviceFee: 0,
         locationFee: 0,
         discount: 0,
         discountAmount: 0,
         chargeableWeight: 0,
-        total: rates?.baseRate || 10000
+        total: 0
     });
 
     const handleChange = (e) => {
@@ -192,7 +192,6 @@ const Shipping = () => {
         setVolume(totalVol);
 
         // Cost Calculation
-        const base = rates?.baseRate || 10000;
         const rawChargeable = Math.max(totalActualWeight, totalVol);
         // Custom Rounding: If decimal > 0.50 round up, else round down
         const roundedWeight = (rawChargeable - Math.floor(rawChargeable)) > 0.50
@@ -200,12 +199,15 @@ const Shipping = () => {
             : Math.floor(rawChargeable);
 
         const chargeableWeight = roundedWeight;
-        const weightFee = chargeableWeight * 5000;
+        const weightFee = chargeableWeight * (rates?.ratePerKg || 5000);
+        
         let serviceFee = 0;
         if (formData.service === 'Reguler') serviceFee = rates?.regulerFee || 2000;
-        else if (formData.service === 'Ekspress') serviceFee = rates?.expressFee || 25000;
+        else if (formData.service === 'Ekspress' || formData.service === 'Express') serviceFee = rates?.expressFee || 25000;
         else if (formData.service === 'Same Day') serviceFee = rates?.sameDayFee || 50000;
-        else if (formData.service === 'Ekonomis') serviceFee = 0;
+        else if (formData.service === 'Ekonomis') serviceFee = rates?.ekonomisFee || 0;
+
+        const base = 0; // Base fee is now deprecated in favor of specific service fees
 
         // Location Fee Logic (Dynamic based on region gap / "distance")
 
@@ -324,7 +326,11 @@ const Shipping = () => {
             discountAmount: costs.discountAmount,
             discountRate: costs.discount,
             estimatedArrival: estimation?.formattedArrivalDate,
-            estimatedDays: estimation?.formattedEstimation
+            estimatedDays: estimation?.formattedEstimation,
+            weightFee: costs.weightFee,
+            serviceFee: costs.serviceFee,
+            locationFee: costs.locationFee,
+            chargeableWeight: costs.chargeableWeight
         };
 
 
@@ -523,8 +529,8 @@ const Shipping = () => {
 
                     {/* Section 3: Detail Barang */}
                     <div className="shipping-card">
-                        <div className="section-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                        <div className="section-header detail-barang-header">
+                            <div className="detail-barang-title-group">
                                 <div className="section-number">3</div>
                                 <h2 className="section-title">Detail Barang</h2>
                             </div>
@@ -532,47 +538,18 @@ const Shipping = () => {
                                 type="button"
                                 className="add-item-btn"
                                 onClick={addItem}
-                                style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '6px',
-                                    padding: '8px 16px',
-                                    background: '#c41e1e',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    fontSize: '14px',
-                                    fontWeight: '700',
-                                    cursor: 'pointer'
-                                }}
                             >
                                 <Plus size={16} /> Tambah Barang
                             </button>
                         </div>
 
                         {formData.items.map((item, index) => (
-                            <div key={index} className="item-entry" style={{
-                                marginBottom: index === formData.items.length - 1 ? 0 : '24px',
-                                padding: '20px',
-                                border: '1px solid #eee',
-                                borderRadius: '12px',
-                                position: 'relative'
-                            }}>
+                            <div key={index} className="item-entry" style={{ marginBottom: index === formData.items.length - 1 ? 0 : '24px' }}>
                                 {formData.items.length > 1 && (
                                     <button
                                         type="button"
+                                        className="remove-item-btn"
                                         onClick={() => removeItem(index)}
-                                        style={{
-                                            position: 'absolute',
-                                            top: '12px',
-                                            right: '12px',
-                                            background: '#fee2e2',
-                                            color: '#ef4444',
-                                            border: 'none',
-                                            borderRadius: '6px',
-                                            padding: '4px',
-                                            cursor: 'pointer'
-                                        }}
                                     >
                                         <Trash2 size={16} />
                                     </button>
@@ -659,7 +636,7 @@ const Shipping = () => {
                             </div>
                         ))}
 
-                        <div className="volume-display" style={{ marginTop: '16px', padding: '12px', background: '#F9FAFB', borderRadius: '8px', fontSize: '14px', color: '#4B5563' }}>
+                        <div className="volume-display">
                             Total Volume gabungan: <strong>{volume.toFixed(2)} kg</strong>
                         </div>
 
@@ -745,10 +722,7 @@ const Shipping = () => {
                                 <span>{costs.chargeableWeight} kg</span>
                             </div>
                             <div className="cost-divider" style={{ margin: '10px 0' }}></div>
-                            <div className="cost-item">
-                                <span>Biaya Dasar</span>
-                                <span>Rp {costs.base.toLocaleString()}</span>
-                            </div>
+
                             <div className="cost-item">
                                 <span>Biaya Berat</span>
                                 <span>Rp {costs.weightFee.toLocaleString()}</span>

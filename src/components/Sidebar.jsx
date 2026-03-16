@@ -8,17 +8,20 @@ import {
     ChevronLeft,
     LogOut,
     ShieldCheck,
-    Search
+    Search,
+    X
 } from 'lucide-react';
 import { useLogistics } from '../context/LogisticsContext';
 import '../styles/Sidebar.css';
 
-const Sidebar = () => {
+const Sidebar = ({ mobileOpen, setMobileOpen }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const { user } = useLogistics();
     const currentPath = location.pathname;
     const [isCollapsed, setIsCollapsed] = useState(false);
+
+    const showText = !isCollapsed || mobileOpen;
 
     const handleLogout = () => {
         // Simple navigation to login
@@ -65,19 +68,27 @@ const Sidebar = () => {
     });
 
     return (
-        <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''}`}>
+        <aside className={`sidebar ${isCollapsed ? 'collapsed' : ''} ${mobileOpen ? 'mobile-open' : ''}`}>
             <div className="sidebar-header">
-                <Link to="/app" className="sidebar-brand">
+                <Link to="/app" className="sidebar-brand" onClick={() => setMobileOpen && setMobileOpen(false)}>
                     <div className="sidebar-logo">
                         <img src="/favicon.png" alt="SwiftGo Logo" />
                     </div>
-                    {!isCollapsed && <span className="sidebar-brand-text">SwiftGo</span>}
+                    {showText && <span className="sidebar-brand-text">SwiftGo</span>}
                 </Link>
+                
                 <button
-                    className="sidebar-toggle"
+                    className="sidebar-toggle desktop-only"
                     onClick={() => setIsCollapsed(!isCollapsed)}
                 >
                     <ChevronLeft size={16} />
+                </button>
+                
+                <button 
+                    className="mobile-close-btn"
+                    onClick={() => setMobileOpen && setMobileOpen(false)}
+                >
+                    <X size={20} color="#666" />
                 </button>
             </div>
 
@@ -88,9 +99,10 @@ const Sidebar = () => {
                             <Link
                                 to={item.path}
                                 className={`sidebar-link ${currentPath === item.path ? 'active' : ''}`}
+                                onClick={() => setMobileOpen && setMobileOpen(false)}
                             >
                                 <span className="sidebar-icon">{item.icon}</span>
-                                {!isCollapsed && <span className="sidebar-text">{item.name}</span>}
+                                {showText && <span className="sidebar-text">{item.name}</span>}
                             </Link>
                         </li>
                     ))}
@@ -98,7 +110,7 @@ const Sidebar = () => {
             </nav>
 
             <div className="sidebar-footer">
-                {!isCollapsed && (
+                {showText && (
                     <div className="user-info">
                         <div className="user-avatar">{user?.avatar || 'C'}</div>
                         <div className="user-details">

@@ -385,9 +385,59 @@
 }
 
 @media (max-width: 768px) {
-
     .balance-stats-grid,
+    .revenue-stats-grid,
     .stats-grid {
         grid-template-columns: 1fr;
+    }
+
+    .dashboard-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .bar-chart-container {
+        padding: 40px 12px 16px 12px;
+        gap: 8px;
+        justify-content: space-between;
+        overflow-x: auto;
+    }
+
+    .bar-column {
+        min-width: 64px;
+    }
+
+    .bar-chart-bar {
+        width: 100%;
+        max-width: 48px;
+    }
+
+    .bar-label-text {
+        font-size: 10px;
+        text-align: center;
+    }
+
+    .bar-icon-circle {
+        width: 28px;
+        height: 28px;
+    }
+
+    .stat-card.minimal {
+        justify-content: flex-start;
+        align-items: center;
+        gap: 24px;
+        padding: 20px 24px;
+    }
+
+    .stat-card.minimal .stat-info {
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .stat-card.minimal .stat-progress-bg {
+        display: none;
     }
 }

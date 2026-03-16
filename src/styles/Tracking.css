@@ -147,12 +147,30 @@
 }
 
 @media (max-width: 768px) {
+    .tracking-page {
+        padding: 16px;
+    }
+
+    .tracking-search-container {
+        padding: 24px;
+    }
+
     .tracking-search-form {
         flex-direction: column;
     }
 
     .track-btn {
         padding: 16px;
+        width: 100%;
+    }
+
+    .tracking-result {
+        padding: 24px;
+        border-radius: 20px;
+    }
+
+    .tracking-header h2 {
+        font-size: 24px;
     }
 }
 

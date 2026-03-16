@@ -267,3 +267,21 @@
     margin: 4px 0;
     font-weight: 500;
 }
+
+@media (max-width: 768px) {
+    .login-container {
+        padding: 16px;
+    }
+
+    .login-card {
+        padding: 32px 24px;
+    }
+
+    .role-options {
+        grid-template-columns: 1fr;
+    }
+    
+    .brand-title {
+        font-size: 48px;
+    }
+}

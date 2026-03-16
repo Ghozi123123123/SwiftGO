@@ -64,8 +64,58 @@
 }
 
 @media (max-width: 768px) {
+    .shipment-modal-content {
+        padding: 20px;
+    }
+
     .modal-grid {
         grid-template-columns: 1fr;
+        gap: 20px;
+    }
+
+    .progress-tracker {
+        padding: 10px 0;
+    }
+
+    .step-icon-wrapper {
+        width: 40px;
+        height: 40px;
+    }
+
+    .progress-step:not(:last-child)::after {
+        top: 20px;
+        left: calc(50% + 20px);
+        width: calc(100% - 40px);
+    }
+
+    .step-check {
+        width: 16px;
+        height: 16px;
+        bottom: -2px;
+        right: -4px;
+    }
+
+    .timeline-date {
+        width: 60px;
+        font-size: 10px;
+    }
+
+    .timeline-row:not(:last-child)::before {
+        left: 95px;
+    }
+
+    .modal-info-summary {
+        grid-template-columns: 1fr;
+        gap: 16px;
+        padding: 16px;
+    }
+
+    .modal-product-details {
+        padding: 16px;
+    }
+
+    .product-details-table {
+        font-size: 13px;
     }
 }
 

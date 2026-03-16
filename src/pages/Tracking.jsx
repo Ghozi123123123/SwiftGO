@@ -203,6 +203,11 @@ const Tracking = () => {
                                                     ? foundOrder.items.map(i => i.itemName).join(', ')
                                                     : (foundOrder.item || '-')}
                                             </td></tr>
+                                            <tr><td>Kategori</td><td>
+                                                {foundOrder.items
+                                                    ? [...new Set(foundOrder.items.map(i => i.itemType))].join(', ')
+                                                    : (foundOrder.itemType || '-')}
+                                            </td></tr>
                                             {foundOrder.estimatedArrival && (
                                                 <>
                                                     <tr><td>Estimasi Pengiriman</td><td>{foundOrder.estimatedDays}</td></tr>

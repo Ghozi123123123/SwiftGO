@@ -53,11 +53,11 @@ const createReceiptElement = (order) => {
             <div style="display: flex; border-bottom: 2px solid #000;">
                 <div style="flex: 2; border-right: 2px solid #000; padding: 10px;">
                     <div style="background: #333; color: white; padding: 5px 15px; border-radius: 20px; display: inline-block; font-weight: bold; font-style: italic; font-size: 18px; margin-bottom: 10px;">
-                        Swift<span style="color: #ef4444;">Go</span> Express
+                        Swift<span style="color: #ffffff;">Go</span> Express
                     </div>
                     <div style="font-size: 28px; font-weight: 900; letter-spacing: 1px; margin-bottom: 5px;">${order.orderNo}</div>
-                    <div style="margin-bottom: 5px;">
-                        <svg class="barcode-main"></svg>
+                    <div style="margin-bottom: 5px; display: flex; justify-content: flex-start;">
+                        <canvas class="barcode-main" style="height: 50px; image-rendering: pixelated; image-rendering: crisp-edges; display: block;"></canvas>
                     </div>
 
                 </div>
@@ -82,8 +82,11 @@ const createReceiptElement = (order) => {
             <!-- Middle Section -->
             <div style="display: flex; border-bottom: 2px solid #000;">
                 <div style="flex: 2; border-right: 2px solid #000; padding: 10px;">
-                    <div style="font-size: 14px; margin-bottom: 8px;">
-                        <strong>PENGIRIM: ${order.senderName?.toUpperCase() || 'PENGIRIM'}</strong> ${order.senderPhone || ''}
+                    <div style="font-size: 14px; margin-bottom: 15px;">
+                        <strong>PENGIRIM: ${order.senderName?.toUpperCase() || 'PENGIRIM'}</strong><br/>
+                        ${order.senderPhone || ''}<br/>
+                        ${(order.senderAddress || '').toUpperCase()}<br/>
+                        ${(order.senderCity || '').toUpperCase()}
                     </div>
                     <div style="font-size: 14px; margin-bottom: 15px;">
                         <strong>PENERIMA: YTH ${order.receiverName?.toUpperCase() || 'PENERIMA'}</strong><br/>
@@ -158,40 +161,48 @@ const createReceiptElement = (order) => {
                     </div>
 
                     <div style="flex: 1; padding: 10px;">
-                        ${order.discountAmount > 0 ? `
-                        <div style="font-size: 10px; color: #ef4444; font-weight: bold; margin-bottom: 2px;">
-                            Diskon Loyalty (${order.discountRate}%)
+                        <div style="font-size: 11px; display: flex; justify-content: space-between; margin-bottom: 2px;">
+                            <span>Biaya Berat</span>
+                            <span>Rp ${(order.weightFee || 0).toLocaleString()}</span>
                         </div>
-                        <div style="font-size: 11px; color: #ef4444; font-weight: bold; margin-bottom: 5px; border-bottom: 1px dashed #ef4444;">
-                            -Rp ${order.discountAmount.toLocaleString()}
+                        <div style="font-size: 11px; display: flex; justify-content: space-between; margin-bottom: 2px;">
+                            <span>Biaya Layanan</span>
+                            <span>Rp ${(order.serviceFee || 0).toLocaleString()}</span>
+                        </div>
+                        <div style="font-size: 11px; display: flex; justify-content: space-between; margin-bottom: 4px;">
+                            <span>Ongkir</span>
+                            <span>Rp ${(order.locationFee || 0).toLocaleString()}</span>
+                        </div>
+                        ${order.discountAmount > 0 ? `
+                        <div style="font-size: 10px; color: #ef4444; font-weight: bold; margin-bottom: 2px; display: flex; justify-content: space-between;">
+                            <span>Diskon Loyalty (${order.discountRate}%)</span>
+                            <span>-Rp ${order.discountAmount.toLocaleString()}</span>
                         </div>
                         ` : ''}
-                        <div style="font-size: 14px; font-weight: bold;">Total Biaya</div>
-                        <div style="font-size: 20px; font-weight: 900;">${order.amount}</div>
+                        <div style="font-size: 14px; font-weight: bold; border-top: 1px solid #000; padding-top: 4px; display: flex; justify-content: space-between;">
+                            <span>Total Biaya</span>
+                            <span>${order.amount}</span>
+                        </div>
                     </div>
                 </div>
             </div>
             
-            <!-- Terms -->
-            <div style="border-bottom: 2px dashed #000; font-size: 10px; padding: 4px 10px; display: flex; justify-content: space-between; color: #555;">
-                <span>Syarat & ketentuan berlaku.</span>
-                <span>Info lebih lanjut: https://swiftgo.com/sk</span>
-            </div>
+            <div style="border-bottom: 2px dashed #000; height: 1px; margin: 8px 0;"></div>
 
             <!-- Footer -->
-            <div style="display: flex; padding: 10px;">
+            <div style="display: flex; padding: 5px 10px;">
                 <div style="flex: 1.5; padding-right: 10px;">
                     <div style="display: flex; align-items: center; margin-bottom: 5px; gap: 10px;">
                         <div style="background: #333; color: white; padding: 2px 10px; border-radius: 10px; font-size: 12px; font-weight: bold; font-style: italic;">
-                            Kirim<span style="color: #ef4444;">Aja</span>
+                            Swift<span style="color: #ffffff;">Go</span>
                         </div>
                         <div style="background: #333; color: white; padding: 2px 10px; font-size: 12px; font-weight: bold;">
                             ${(order.service || 'REGULER').toUpperCase().substring(0, 8)}
                         </div>
                     </div>
                     <div style="font-size: 24px; font-weight: 900; letter-spacing: 1px;">${order.orderNo}</div>
-                    <div style="margin-bottom: 5px;">
-                        <svg class="barcode-small"></svg>
+                    <div style="margin-bottom: 5px; display: flex; justify-content: flex-start;">
+                        <canvas class="barcode-small" style="height: 30px; image-rendering: pixelated; image-rendering: crisp-edges; display: block;"></canvas>
                     </div>
                     <div style="font-size: 12px; display: grid; grid-template-columns: 100px 1fr; gap: 4px;">
                         <strong>Pengirim</strong> <span>: ${order.senderName?.toUpperCase().substring(0, 15) || 'PENGIRIM'}</span>
@@ -206,14 +217,26 @@ const createReceiptElement = (order) => {
                 </div>
 
                 <div style="flex: 1; padding-left: 10px; border-left: 1px solid #000; font-size: 12px;">
+                     <div style="font-size: 10px; display: flex; justify-content: space-between; margin-bottom: 1px;">
+                        <span>Biaya Berat</span>
+                        <span>Rp ${(order.weightFee || 0).toLocaleString()}</span>
+                    </div>
+                    <div style="font-size: 10px; display: flex; justify-content: space-between; margin-bottom: 1px;">
+                        <span>Biaya Layanan</span>
+                        <span>Rp ${(order.serviceFee || 0).toLocaleString()}</span>
+                    </div>
+                    <div style="font-size: 10px; display: flex; justify-content: space-between; margin-bottom: 2px;">
+                        <span>Ongkir</span>
+                        <span>Rp ${(order.locationFee || 0).toLocaleString()}</span>
+                    </div>
                     ${order.discountAmount > 0 ? `
-                    <div style="display: flex; justify-content: space-between; font-size: 10px; color: #ef4444; margin-bottom: 2px;">
+                    <div style="display: flex; justify-content: space-between; font-size: 10px; color: #ef4444; margin-bottom: 1px;">
                         <span>Diskon (${order.discountRate}%)</span>
                         <span>-Rp ${order.discountAmount.toLocaleString()}</span>
                     </div>
                     ` : ''}
-                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid #000; padding-bottom: 2px; margin-bottom: 2px;">
-                        <strong>Total Biaya</strong> <strong>${order.amount}</strong>
+                    <div style="display: flex; justify-content: space-between; border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 2px 0; margin-bottom: 2px;">
+                        <strong>Total</strong> <strong>${order.amount}</strong>
                     </div>
                     <div style="border-top: 2px solid #000; margin-top: 15px; padding-top: 4px; text-align: right; font-size: 16px; font-weight: bold;">
                         ${(() => {
@@ -235,7 +258,7 @@ const applyBarcodes = (container, orderNo) => {
     try {
         JsBarcode(container.querySelector('.barcode-main'), orderNo, {
             format: "CODE128",
-            lineColor: "#000",
+            lineColor: "#000000",
             background: "#ffffff",
             width: 2,
             height: 50,
@@ -245,7 +268,7 @@ const applyBarcodes = (container, orderNo) => {
 
         JsBarcode(container.querySelector('.barcode-small'), orderNo, {
             format: "CODE128",
-            lineColor: "#000",
+            lineColor: "#000000",
             background: "#ffffff",
             width: 1.5,
             height: 30,
@@ -267,7 +290,7 @@ export const generateReceiptCanvas = async (order) => {
 
     try {
         const canvas = await html2canvas(container, {
-            scale: 2,
+            scale: 3,
             logging: false,
             useCORS: true,
             backgroundColor: '#ffffff'

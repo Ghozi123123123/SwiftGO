@@ -130,10 +130,11 @@
 
 .volume-display {
     margin-top: 16px;
-    padding: 16px;
-    background: #fef2f2;
-    border-radius: 12px;
-    color: #991b1b;
+    padding: 12px;
+    background: #F9FAFB;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #4B5563;
 }
 
 .service-selection {
@@ -277,4 +278,117 @@
     font-weight: 600;
     color: #475569;
     cursor: pointer;
+}
+
+.detail-barang-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.detail-barang-title-group {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.add-item-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 16px;
+    background: #c41e1e;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.add-item-btn:hover {
+    background: #a31919;
+}
+
+.item-entry {
+    padding: 20px;
+    border: 1px solid #eee;
+    border-radius: 12px;
+    position: relative;
+}
+
+.remove-item-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #fee2e2;
+    color: #ef4444;
+    border: none;
+    border-radius: 6px;
+    padding: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.remove-item-btn:hover {
+    background: #fca5a5;
+}
+
+@media (max-width: 768px) {
+    .shipping-page {
+        padding: 16px;
+    }
+
+    .shipping-card {
+        padding: 20px;
+        margin-bottom: 16px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .dimension-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .service-selection {
+        grid-template-columns: 1fr;
+    }
+
+    .page-title {
+        font-size: 20px;
+    }
+
+    .shipping-page .page-header {
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        gap: 12px;
+    }
+
+    .section-title {
+        font-size: 16px;
+    }
+
+    .section-header {
+        margin-bottom: 16px;
+    }
+
+    .detail-barang-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .add-item-btn {
+        width: 100%;
+        justify-content: center;
+    }
+
+    .item-entry {
+        padding: 16px;
+    }
 }

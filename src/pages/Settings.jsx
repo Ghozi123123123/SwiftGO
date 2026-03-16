@@ -169,21 +169,66 @@ const Settings = () => {
                     <div className="settings-section">
                         <h3 className="settings-section-title">
                             <Package size={18} color="#c41e1e" />
-                            Tarif Dasar & Berat
+                            Tarif Layanan
                         </h3>
                         <div className="input-grid">
                             <div className="input-group">
-                                <label>Tarif Dasar (Ekonomis)</label>
+                                <label>Biaya Ekonomis</label>
                                 <div className="input-wrapper">
                                     <span className="prefix">Rp</span>
                                     <input
                                         type="number"
-                                        name="baseRate"
-                                        value={formData.baseRate}
+                                        name="ekonomisFee"
+                                        value={formData.ekonomisFee || 0}
                                         onChange={handleChange}
                                     />
                                 </div>
                             </div>
+                            <div className="input-group">
+                                <label>Biaya Reguler</label>
+                                <div className="input-wrapper">
+                                    <span className="prefix">Rp</span>
+                                    <input
+                                        type="number"
+                                        name="regulerFee"
+                                        value={formData.regulerFee || 0}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                            </div>
+                            <div className="input-group">
+                                <label>Biaya Express</label>
+                                <div className="input-wrapper">
+                                    <span className="prefix">Rp</span>
+                                    <input
+                                        type="number"
+                                        name="expressFee"
+                                        value={formData.expressFee || 0}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                            </div>
+                            <div className="input-group">
+                                <label>Biaya Same Day</label>
+                                <div className="input-wrapper">
+                                    <span className="prefix">Rp</span>
+                                    <input
+                                        type="number"
+                                        name="sameDayFee"
+                                        value={formData.sameDayFee || 0}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="settings-section">
+                        <h3 className="settings-section-title">
+                            <Clock size={18} color="#c41e1e" />
+                            Preferensi Umum
+                        </h3>
+                        <div className="input-grid">
                             <div className="input-group">
                                 <label>Tarif per kg</label>
                                 <div className="input-wrapper">
@@ -204,51 +249,6 @@ const Settings = () => {
                                         type="number"
                                         name="loyaltyDiscount"
                                         value={formData.loyaltyDiscount}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div className="settings-section">
-                        <h3 className="settings-section-title">
-                            <Zap size={18} color="#c41e1e" />
-                            Layanan Tambahan
-                        </h3>
-                        <div className="input-grid">
-                            <div className="input-group">
-                                <label>Biaya Express</label>
-                                <div className="input-wrapper">
-                                    <span className="prefix">Rp</span>
-                                    <input
-                                        type="number"
-                                        name="expressFee"
-                                        value={formData.expressFee}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </div>
-                            <div className="input-group">
-                                <label>Biaya Same Day</label>
-                                <div className="input-wrapper">
-                                    <span className="prefix">Rp</span>
-                                    <input
-                                        type="number"
-                                        name="sameDayFee"
-                                        value={formData.sameDayFee}
-                                        onChange={handleChange}
-                                    />
-                                </div>
-                            </div>
-                            <div className="input-group">
-                                <label>Biaya Reguler</label>
-                                <div className="input-wrapper">
-                                    <span className="prefix">Rp</span>
-                                    <input
-                                        type="number"
-                                        name="regulerFee"
-                                        value={formData.regulerFee || 0}
                                         onChange={handleChange}
                                     />
                                 </div>

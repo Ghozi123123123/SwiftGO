@@ -430,7 +430,11 @@ const OrderList = () => {
                                                 </tr>
                                                 <tr>
                                                     <td>Kategori</td>
-                                                    <td>{selectedOrder.itemType || '-'}</td>
+                                                    <td>
+                                                        {selectedOrder.items
+                                                            ? [...new Set(selectedOrder.items.map(i => i.itemType))].join(', ')
+                                                            : (selectedOrder.itemType || '-')}
+                                                    </td>
                                                 </tr>
                                                 <tr>
                                                     <td>Berat</td>
