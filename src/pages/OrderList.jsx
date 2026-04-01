@@ -39,6 +39,7 @@ const OrderList = () => {
     const [selectedOrder, setSelectedOrder] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isCancelConfirmOpen, setIsCancelConfirmOpen] = useState(false);
+    const [isDeleteConfirmOpen, setIsDeleteConfirmOpen] = useState(false);
     const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
     const [receiptCanvas, setReceiptCanvas] = useState(null);
     const [isLoadingReceipt, setIsLoadingReceipt] = useState(false);
@@ -102,11 +103,16 @@ const OrderList = () => {
 
     const handleDeleteOrder = (e, order) => {
         e.stopPropagation();
-        const confirmDelete = window.confirm(`Apakah Anda yakin ingin menghapus pesanan ${order.orderNo}?`);
-        if (confirmDelete) {
-            deleteOrder(order.orderNo);
-            showNotification(`Pesanan ${order.orderNo} telah dihapus.`, 'success');
-            setActiveMenuIndex(null);
+        setSelectedOrder(order);
+        setIsDeleteConfirmOpen(true);
+        setActiveMenuIndex(null);
+    };
+
+    const handleConfirmDelete = () => {
+        if (selectedOrder) {
+            deleteOrder(selectedOrder.orderNo);
+            showNotification(`Pesanan ${selectedOrder.orderNo} telah dihapus.`, 'success');
+            setIsDeleteConfirmOpen(false);
         }
     };
 
@@ -489,6 +495,20 @@ const OrderList = () => {
                         <div className="confirmation-buttons">
                             <button className="btn-yes" onClick={handleConfirmCancel}>Iya</button>
                             <button className="btn-no" onClick={() => setIsCancelConfirmOpen(false)}>Tidak</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Delete Confirmation Modal */}
+            {isDeleteConfirmOpen && (
+                <div className="confirmation-modal" onClick={() => setIsDeleteConfirmOpen(false)}>
+                    <div className="confirmation-content" onClick={(e) => e.stopPropagation()}>
+                        <h3 style={{ color: '#c41e1e' }}>Hapus Pesanan</h3>
+                        <p>Apakah Anda yakin ingin menghapus pesanan <strong>{selectedOrder?.orderNo}</strong>?</p>
+                        <div className="confirmation-buttons">
+                            <button className="btn-yes" style={{ background: '#c41e1e', color: 'white' }} onClick={handleConfirmDelete}>Iya, Hapus</button>
+                            <button className="btn-no" onClick={() => setIsDeleteConfirmOpen(false)}>Batal</button>
                         </div>
                     </div>
                 </div>

@@ -11,7 +11,11 @@ const DEFAULT_RATES = {
     expressFee: 25000,
     sameDayFee: 50000,
     ekonomisFee: 0,
-    loyaltyDiscount: 10
+    loyaltyDiscount: 10,
+    zonaDalamKota: 5000,
+    zonaLuarKota: 7000,
+    zonaLuarProvinsi: 18000,
+    zonaLuarPulau: 40000
 };
 
 export const LogisticsProvider = ({ children }) => {

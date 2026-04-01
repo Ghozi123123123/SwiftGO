@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Navigate } from 'react-router-dom';
-import { Settings as SettingsIcon, Save, Zap, Clock, Package, FileText } from 'lucide-react';
+import { Settings as SettingsIcon, Save, Zap, Clock, Package, FileText, MapPin } from 'lucide-react';
 import { useLogistics } from '../context/LogisticsContext';
 import { downloadShippingReport } from '../services/reportUtils';
 import '../styles/Settings.css';
@@ -29,10 +29,13 @@ const Settings = () => {
         );
 
         const currentMonthName = now.toLocaleString('id-ID', { month: 'long' });
+        const targetMonthYear = now.toLocaleDateString('id-ID', { month: 'short', year: 'numeric' });
 
         return days.map(day => {
+            const targetDateStr = `${day} ${targetMonthYear}`;
+            
             const revenue = orders
-                .filter(order => order.status !== 'Dibatalkan' && order.date.startsWith(day))
+                .filter(order => order.status !== 'Dibatalkan' && (order.date === targetDateStr || order.date.startsWith(targetDateStr)))
                 .reduce((sum, order) => sum + (parseInt(order.amount.replace(/[^0-9]/g, '')) || 0), 0);
             return {
                 day,
@@ -225,22 +228,67 @@ const Settings = () => {
 
                     <div className="settings-section">
                         <h3 className="settings-section-title">
-                            <Clock size={18} color="#c41e1e" />
-                            Preferensi Umum
+                            <MapPin size={18} color="#c41e1e" />
+                            Tarif Zona (per kg)
                         </h3>
                         <div className="input-grid">
                             <div className="input-group">
-                                <label>Tarif per kg</label>
+                                <label>Dalam Kota</label>
                                 <div className="input-wrapper">
                                     <span className="prefix">Rp</span>
                                     <input
                                         type="number"
-                                        name="ratePerKg"
-                                        value={formData.ratePerKg}
+                                        name="zonaDalamKota"
+                                        value={formData.zonaDalamKota || 0}
                                         onChange={handleChange}
                                     />
                                 </div>
                             </div>
+                            <div className="input-group">
+                                <label>Luar Kota</label>
+                                <div className="input-wrapper">
+                                    <span className="prefix">Rp</span>
+                                    <input
+                                        type="number"
+                                        name="zonaLuarKota"
+                                        value={formData.zonaLuarKota || 0}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                            </div>
+                            <div className="input-group">
+                                <label>Luar Provinsi</label>
+                                <div className="input-wrapper">
+                                    <span className="prefix">Rp</span>
+                                    <input
+                                        type="number"
+                                        name="zonaLuarProvinsi"
+                                        value={formData.zonaLuarProvinsi || 0}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                            </div>
+                            <div className="input-group">
+                                <label>Luar Pulau</label>
+                                <div className="input-wrapper">
+                                    <span className="prefix">Rp</span>
+                                    <input
+                                        type="number"
+                                        name="zonaLuarPulau"
+                                        value={formData.zonaLuarPulau || 0}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="settings-section">
+                        <h3 className="settings-section-title">
+                            <Clock size={18} color="#c41e1e" />
+                            Preferensi Umum
+                        </h3>
+                        <div className="input-grid">
                             <div className="input-group">
                                 <label>Diskon Loyalitas (%)</label>
                                 <div className="input-wrapper">

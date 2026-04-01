@@ -45,7 +45,7 @@ const createReceiptElement = (order) => {
 
     const originCode = getCityCode(order.senderCity);
     const destCode = getCityCode(order.receiverCity || order.destination);
-    const sortCode = (order.receiverCity || 'Jakarta').substring(0, 3).toUpperCase() + '01';
+    const sortCode = (order.receiverCity || 'Jakarta').substring(0, 3).toUpperCase();
 
     receiptContainer.innerHTML = `
         <div style="width: 100%; box-sizing: border-box; border: 2px solid #000; background: white;">
@@ -169,10 +169,6 @@ const createReceiptElement = (order) => {
                             <span>Biaya Layanan</span>
                             <span>Rp ${(order.serviceFee || 0).toLocaleString()}</span>
                         </div>
-                        <div style="font-size: 11px; display: flex; justify-content: space-between; margin-bottom: 4px;">
-                            <span>Ongkir</span>
-                            <span>Rp ${(order.locationFee || 0).toLocaleString()}</span>
-                        </div>
                         ${order.discountAmount > 0 ? `
                         <div style="font-size: 10px; color: #ef4444; font-weight: bold; margin-bottom: 2px; display: flex; justify-content: space-between;">
                             <span>Diskon Loyalty (${order.discountRate}%)</span>
@@ -224,10 +220,6 @@ const createReceiptElement = (order) => {
                     <div style="font-size: 10px; display: flex; justify-content: space-between; margin-bottom: 1px;">
                         <span>Biaya Layanan</span>
                         <span>Rp ${(order.serviceFee || 0).toLocaleString()}</span>
-                    </div>
-                    <div style="font-size: 10px; display: flex; justify-content: space-between; margin-bottom: 2px;">
-                        <span>Ongkir</span>
-                        <span>Rp ${(order.locationFee || 0).toLocaleString()}</span>
                     </div>
                     ${order.discountAmount > 0 ? `
                     <div style="display: flex; justify-content: space-between; font-size: 10px; color: #ef4444; margin-bottom: 1px;">

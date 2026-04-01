@@ -6,15 +6,70 @@
     justify-content: center;
     background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
     padding: 20px;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Background Animated Shapes */
+.bg-shape {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    z-index: 0;
+    animation: float 15s infinite ease-in-out alternate;
+}
+
+.shape-1 {
+    width: 400px;
+    height: 400px;
+    background: rgba(196, 30, 30, 0.15); /* SwiftGo Red */
+    top: -10%;
+    left: -5%;
+    animation-delay: 0s;
+}
+
+.shape-2 {
+    width: 500px;
+    height: 500px;
+    background: rgba(37, 99, 235, 0.15); /* Blue */
+    bottom: -20%;
+    right: -10%;
+    animation-delay: -5s;
+    animation-duration: 20s;
+}
+
+.shape-3 {
+    width: 300px;
+    height: 300px;
+    background: rgba(22, 163, 74, 0.1); /* Green */
+    top: 40%;
+    left: 60%;
+    animation-delay: -10s;
+    animation-duration: 18s;
+}
+
+@keyframes float {
+    0% {
+        transform: translate(0, 0) scale(1);
+    }
+    50% {
+        transform: translate(30px, -50px) scale(1.1);
+    }
+    100% {
+        transform: translate(-20px, 20px) scale(0.9);
+    }
 }
 
 .login-card {
     background: white;
     width: 100%;
     max-width: 440px;
+    max-width: 440px;
     padding: 48px;
     border-radius: 32px;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    position: relative;
+    z-index: 1;
 }
 
 .register-card {
@@ -283,5 +338,9 @@
     
     .brand-title {
         font-size: 48px;
+    }
+
+    .bg-shape {
+        display: none;
     }
 }

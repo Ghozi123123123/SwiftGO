@@ -199,7 +199,28 @@ const Shipping = () => {
             : Math.floor(rawChargeable);
 
         const chargeableWeight = roundedWeight;
-        const weightFee = chargeableWeight * (rates?.ratePerKg || 5000);
+
+        let zoneTariff = 0;
+        if (formData.senderCity && formData.receiverCity) {
+            const sCity = formData.senderCity.toLowerCase();
+            const rCity = formData.receiverCity.toLowerCase();
+
+            if (sCity === rCity) {
+                zoneTariff = rates?.zonaDalamKota || 5000; // Same city
+            } else if (formData.senderProvince === formData.receiverProvince) {
+                zoneTariff = rates?.zonaLuarKota || 7000; // Same province, different city
+            } else {
+                const w1 = getRegionWeight(formData.senderProvince);
+                const w2 = getRegionWeight(formData.receiverProvince);
+                if (w1 === w2) {
+                    zoneTariff = rates?.zonaLuarProvinsi || 18000; // Different province, same region
+                } else {
+                    zoneTariff = rates?.zonaLuarPulau || 40000; // Base Luar Pulau directly from Admin Panel
+                }
+            }
+        }
+
+        const weightFee = chargeableWeight * zoneTariff;
         
         let serviceFee = 0;
         if (formData.service === 'Reguler') serviceFee = rates?.regulerFee || 2000;
@@ -208,30 +229,7 @@ const Shipping = () => {
         else if (formData.service === 'Ekonomis') serviceFee = rates?.ekonomisFee || 0;
 
         const base = 0; // Base fee is now deprecated in favor of specific service fees
-
-        // Location Fee Logic (Dynamic based on region gap / "distance")
-
-
-        let locationFee = 0;
-        if (formData.senderCity && formData.receiverCity) {
-            const sCity = formData.senderCity.toLowerCase();
-            const rCity = formData.receiverCity.toLowerCase();
-
-            if (sCity === rCity) {
-                locationFee = 0; // Same city
-            } else if (formData.senderProvince === formData.receiverProvince) {
-                locationFee = 7000; // Same province, different city
-            } else {
-                const w1 = getRegionWeight(formData.senderProvince);
-                const w2 = getRegionWeight(formData.receiverProvince);
-                if (w1 === w2) {
-                    locationFee = 18000; // Different province, same region
-                } else {
-                    const diff = Math.abs(w1 - w2);
-                    locationFee = 20000 + (diff * 20000); // Cross-region distance based
-                }
-            }
-        }
+        const locationFee = zoneTariff; // Storing as zone tariff for display
 
         // Loyalty Discount Logic (20% for EVERY 6th shipment with same name & address)
         let discount = 0;
@@ -248,7 +246,7 @@ const Shipping = () => {
             // Trigger discount for the 6th, 12th, 18th, etc. shipment
             if (senderOrderCount > 0 && (senderOrderCount + 1) % 6 === 0) {
                 discount = 20;
-                const subT = base + weightFee + serviceFee + locationFee;
+                const subT = base + weightFee + serviceFee;
                 discountAmount = (subT * discount) / 100;
             }
         }
@@ -269,7 +267,7 @@ const Shipping = () => {
             discount,
             discountAmount,
             chargeableWeight: roundedWeight,
-            total: base + weightFee + serviceFee + locationFee - discountAmount
+            total: base + weightFee + serviceFee - discountAmount
         });
     }, [formData.items, formData.service, formData.senderCity, formData.receiverCity, formData.senderProvince, formData.receiverProvince, formData.senderName, rates, orders]);
 
@@ -723,6 +721,24 @@ const Shipping = () => {
                             </div>
                             <div className="cost-divider" style={{ margin: '10px 0' }}></div>
 
+                            {costs.locationFee > 0 && (
+                                <>
+                                    <div className="cost-item" style={{ fontSize: '15px', color: '#1e293b' }}>
+                                        <span>Zona Pengiriman</span>
+                                        <span style={{ fontWeight: '700' }}>
+                                            {formData.senderCity === formData.receiverCity ? "Dalam Kota" :
+                                                formData.senderProvince === formData.receiverProvince ? "Luar Kota" :
+                                                getRegionWeight(formData.senderProvince) === getRegionWeight(formData.receiverProvince) ? "Luar Provinsi" :
+                                                    "Luar Pulau"}
+                                        </span>
+                                    </div>
+                                    <div className="cost-item" style={{ fontSize: '15px' }}>
+                                        <span>Tarif Zona (per kg)</span>
+                                        <span>Rp {costs.locationFee.toLocaleString()}</span>
+                                    </div>
+                                </>
+                            )}
+
                             <div className="cost-item">
                                 <span>Biaya Berat</span>
                                 <span>Rp {costs.weightFee.toLocaleString()}</span>
@@ -731,22 +747,6 @@ const Shipping = () => {
                                 <span>Biaya Layanan</span>
                                 <span>Rp {costs.serviceFee.toLocaleString()}</span>
                             </div>
-                            {costs.locationFee > 0 && (
-                                <>
-                                    <div className="cost-item" style={{ fontSize: '15px', color: '#1e293b' }}>
-                                        <span>Zona Pengiriman</span>
-                                        <span style={{ fontWeight: '700' }}>
-                                            {formData.senderProvince === formData.receiverProvince ? "Luar Kota" :
-                                                getRegionWeight(formData.senderProvince) === getRegionWeight(formData.receiverProvince) ? "Luar Provinsi" :
-                                                    "Luar Pulau"}
-                                        </span>
-                                    </div>
-                                    <div className="cost-item" style={{ fontSize: '15px' }}>
-                                        <span>Ongkir</span>
-                                        <span>Rp {costs.locationFee.toLocaleString()}</span>
-                                    </div>
-                                </>
-                            )}
 
 
                             {costs.discount > 0 && (
@@ -776,7 +776,7 @@ const Shipping = () => {
                             )}
                             <div className="cost-item subtotal">
                                 <span>Subtotal</span>
-                                <span>Rp {(costs.base + costs.weightFee + costs.serviceFee + costs.locationFee).toLocaleString()}</span>
+                                <span>Rp {(costs.base + costs.weightFee + costs.serviceFee).toLocaleString()}</span>
                             </div>
                             <div className="cost-item total">
                                 <strong>Total</strong>

@@ -40,6 +40,10 @@ const Login = () => {
 
     return (
         <div className="login-container">
+            {/* Desktop Background Elements */}
+            <div className="bg-shape shape-1"></div>
+            <div className="bg-shape shape-2"></div>
+            <div className="bg-shape shape-3"></div>
             <div className="login-card">
                 <div className="brand-section">
                     <h1 className="brand-title">SwiftGo</h1>
@@ -83,9 +87,7 @@ const Login = () => {
                                 {showPassword ? <EyeOff size={20} color="#666" /> : <Eye size={20} color="#666" />}
                             </button>
                         </div>
-
                     </div>
-
                 </form>
 
                 <div className="role-options">
@@ -102,7 +104,6 @@ const Login = () => {
                             <span className="role-name">Admin</span>
                         </div>
                     </button>
-
                     <button
                         type="button"
                         className="role-btn customer"
