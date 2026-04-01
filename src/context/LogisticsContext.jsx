@@ -25,10 +25,20 @@ export const LogisticsProvider = ({ children }) => {
         return savedOrders ? JSON.parse(savedOrders) : [];
     });
 
-    // Load rates from localStorage on init
     const [rates, setRates] = useState(() => {
         const savedRates = localStorage.getItem('swiftgo_rates');
-        return savedRates ? JSON.parse(savedRates) : DEFAULT_RATES;
+        if (!savedRates) return DEFAULT_RATES;
+        
+        const parsed = JSON.parse(savedRates);
+        
+        // Ensure that these specific fields are not 0 if they were missing or 0 in the old save
+        if (!parsed.ekonomisFee) parsed.ekonomisFee = 5000;
+        if (!parsed.zonaDalamKota) parsed.zonaDalamKota = 3000;
+        if (!parsed.zonaLuarKota) parsed.zonaLuarKota = 8000;
+        if (!parsed.zonaLuarProvinsi) parsed.zonaLuarProvinsi = 10000;
+        if (!parsed.zonaLuarPulau) parsed.zonaLuarPulau = 15000;
+
+        return { ...DEFAULT_RATES, ...parsed };
     });
 
     const [recentTracking, setRecentTracking] = useState([]);
