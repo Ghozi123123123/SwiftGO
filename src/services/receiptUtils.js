@@ -86,13 +86,13 @@ const createReceiptElement = (order) => {
                         <strong>PENGIRIM: ${order.senderName?.toUpperCase() || 'PENGIRIM'}</strong><br/>
                         ${order.senderPhone || ''}<br/>
                         ${(order.senderAddress || '').toUpperCase()}<br/>
-                        ${(order.senderCity || '').toUpperCase()}
+                        ${(order.senderCity || '').toUpperCase()}${order.senderPostal ? ` ${order.senderPostal}` : ''}
                     </div>
                     <div style="font-size: 14px; margin-bottom: 15px;">
                         <strong>PENERIMA: YTH ${order.receiverName?.toUpperCase() || 'PENERIMA'}</strong><br/>
                         ${order.receiverPhone || ''}<br/>
                         ${(order.receiverAddress || '').toUpperCase()}<br/>
-                        ${(order.receiverCity || order.destination || '').toUpperCase()}
+                        ${(order.receiverCity || order.destination || '').toUpperCase()}${order.receiverPostal ? ` ${order.receiverPostal}` : ''}
                     </div>
                     <div style="font-size: 16px; font-weight: bold; margin-top: 20px;">
                         ${(order.receiverDistrict || '').toUpperCase()}${order.receiverDistrict ? ',' : ''} ${(order.receiverCity || order.destination || '').toUpperCase()}${(order.receiverProvince || '').toUpperCase() ? ',' : ''} ${(order.receiverProvince || '').toUpperCase()}
@@ -213,6 +213,14 @@ const createReceiptElement = (order) => {
                 </div>
 
                 <div style="flex: 1; padding-left: 10px; border-left: 1px solid #000; font-size: 12px;">
+                    <div style="border-bottom: 2px solid #000; margin-bottom: 5px; padding-bottom: 4px; text-align: right; font-size: 16px; font-weight: bold;">
+                        ${(() => {
+            if (order.items) {
+                return order.items.reduce((sum, item) => sum + (parseFloat(item.weight) || 0), 0);
+            }
+            return order.weight || '1';
+        })()} kg
+                    </div>
                      <div style="font-size: 10px; display: flex; justify-content: space-between; margin-bottom: 1px;">
                         <span>Biaya Berat</span>
                         <span>Rp ${(order.weightFee || 0).toLocaleString()}</span>
@@ -229,14 +237,6 @@ const createReceiptElement = (order) => {
                     ` : ''}
                     <div style="display: flex; justify-content: space-between; border-top: 1px solid #000; border-bottom: 1px solid #000; padding: 2px 0; margin-bottom: 2px;">
                         <strong>Total</strong> <strong>${order.amount}</strong>
-                    </div>
-                    <div style="border-top: 2px solid #000; margin-top: 15px; padding-top: 4px; text-align: right; font-size: 16px; font-weight: bold;">
-                        ${(() => {
-            if (order.items) {
-                return order.items.reduce((sum, item) => sum + (parseFloat(item.weight) || 0), 0);
-            }
-            return order.weight || '1';
-        })()} kg
                     </div>
                 </div>
             </div>

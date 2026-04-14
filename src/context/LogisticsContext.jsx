@@ -6,16 +6,16 @@ export const useLogistics = () => useContext(LogisticsContext);
 
 const DEFAULT_RATES = {
     baseRate: 10000,
-    regulerFee: 2000,
+    regulerFee: 10000,
     ratePerKg: 5000,
-    expressFee: 25000,
-    sameDayFee: 50000,
+    expressFee: 15000,
+    sameDayFee: 25000,
     ekonomisFee: 5000,
     loyaltyDiscount: 10,
-    zonaDalamKota: 3000,
-    zonaLuarKota: 8000,
-    zonaLuarProvinsi: 10000,
-    zonaLuarPulau: 15000
+    zonaDalamKota: 5000,
+    zonaLuarKota: 10000,
+    zonaLuarProvinsi: 15000,
+    zonaLuarPulau: 25000
 };
 
 export const LogisticsProvider = ({ children }) => {
@@ -32,11 +32,11 @@ export const LogisticsProvider = ({ children }) => {
         const parsed = JSON.parse(savedRates);
         
         // Ensure that these specific fields are not 0 if they were missing or 0 in the old save
-        if (!parsed.ekonomisFee) parsed.ekonomisFee = 5000;
-        if (!parsed.zonaDalamKota) parsed.zonaDalamKota = 3000;
-        if (!parsed.zonaLuarKota) parsed.zonaLuarKota = 8000;
-        if (!parsed.zonaLuarProvinsi) parsed.zonaLuarProvinsi = 10000;
-        if (!parsed.zonaLuarPulau) parsed.zonaLuarPulau = 15000;
+        if (!parsed.ekonomisFee) parsed.ekonomisFee = DEFAULT_RATES.ekonomisFee;
+        if (!parsed.zonaDalamKota) parsed.zonaDalamKota = parsed.ekonomisFee || DEFAULT_RATES.zonaDalamKota;
+        if (!parsed.zonaLuarKota) parsed.zonaLuarKota = parsed.regulerFee || DEFAULT_RATES.zonaLuarKota;
+        if (!parsed.zonaLuarProvinsi) parsed.zonaLuarProvinsi = parsed.expressFee || DEFAULT_RATES.zonaLuarProvinsi;
+        if (!parsed.zonaLuarPulau) parsed.zonaLuarPulau = parsed.sameDayFee || DEFAULT_RATES.zonaLuarPulau;
 
         return { ...DEFAULT_RATES, ...parsed };
     });
