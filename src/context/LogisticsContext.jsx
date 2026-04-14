@@ -32,11 +32,16 @@ export const LogisticsProvider = ({ children }) => {
         const parsed = JSON.parse(savedRates);
         
         // Ensure that these specific fields are not 0 if they were missing or 0 in the old save
-        if (!parsed.ekonomisFee) parsed.ekonomisFee = DEFAULT_RATES.ekonomisFee;
-        if (!parsed.zonaDalamKota) parsed.zonaDalamKota = parsed.ekonomisFee || DEFAULT_RATES.zonaDalamKota;
-        if (!parsed.zonaLuarKota) parsed.zonaLuarKota = parsed.regulerFee || DEFAULT_RATES.zonaLuarKota;
-        if (!parsed.zonaLuarProvinsi) parsed.zonaLuarProvinsi = parsed.expressFee || DEFAULT_RATES.zonaLuarProvinsi;
-        if (!parsed.zonaLuarPulau) parsed.zonaLuarPulau = parsed.sameDayFee || DEFAULT_RATES.zonaLuarPulau;
+        if (!parsed.ekonomisFee) parsed.ekonomisFee = 5000;
+        if (!parsed.zonaDalamKota || parsed.zonaDalamKota === 3000) parsed.zonaDalamKota = 5000;
+        if (!parsed.zonaLuarKota || parsed.zonaLuarKota === 8000) parsed.zonaLuarKota = 10000;
+        if (!parsed.zonaLuarProvinsi || parsed.zonaLuarProvinsi === 10000) parsed.zonaLuarProvinsi = 15000;
+        if (!parsed.zonaLuarPulau || parsed.zonaLuarPulau === 15000) parsed.zonaLuarPulau = 25000;
+        
+        // Migrate old default service fees
+        if (parsed.regulerFee === 2000) parsed.regulerFee = 10000;
+        if (parsed.expressFee === 25000) parsed.expressFee = 15000;
+        if (parsed.sameDayFee === 50000) parsed.sameDayFee = 25000;
 
         return { ...DEFAULT_RATES, ...parsed };
     });

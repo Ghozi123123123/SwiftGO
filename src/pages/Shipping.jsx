@@ -5,7 +5,6 @@ import { useLogistics } from '../context/LogisticsContext';
 import { INDONESIA_CITIES, INDONESIA_DISTRICTS } from '../data/indonesiaData';
 import { calculateEstimation } from '../services/estimationUtils';
 import '../styles/Shipping.css';
-import '../styles/ShipmentModal.css';
 
 const INDONESIA_PROVINCES = [
     "Aceh", "Sumatera Utara", "Sumatera Barat", "Riau", "Kepulauan Riau",
@@ -43,7 +42,6 @@ const Shipping = () => {
     if (user?.role !== 'admin') {
         return <Navigate to="/app/tracking" replace />;
     }
-    const [isConfirmOpen, setIsConfirmOpen] = useState(false);
     const [formData, setFormData] = useState({
         senderName: '',
         senderPhone: '',
@@ -295,10 +293,11 @@ const Shipping = () => {
             return;
         }
 
-        setIsConfirmOpen(true);
-    };
+        const confirmCreate = window.confirm(`Apakah Anda yakin ingin membuat pengiriman ini?\nTotal Biaya: Rp ${costs.total.toLocaleString()}`);
+        if (!confirmCreate) return;
 
-    const handleConfirmCreate = () => {
+
+
         const newOrder = {
             orderNo: `SWG-${Math.floor(1000 + Math.random() * 9000)}`,
             senderName: formData.senderName,
@@ -335,7 +334,6 @@ const Shipping = () => {
 
 
         addOrder(newOrder);
-        setIsConfirmOpen(false);
         showNotification(formData.payment === 'COD' ? 'Pengiriman Berhasil Dibuat! (Metode COD)' : 'Pengiriman berhasil dibuat! (Metode Non-COD)', 'success');
         navigate('/app/orders');
     };
@@ -577,10 +575,16 @@ const Shipping = () => {
                                             <option value="">Pilih Jenis</option>
                                             <option value="Dokumen">📄 Dokumen</option>
                                             <option value="Elektronik">📱 Elektronik</option>
-                                            <option value="Pakaian">👕 Pakaian</option>
+                                            <option value="Pakaian & Fashion">👕 Pakaian & Fashion</option>
                                             <option value="Makanan">🍔 Makanan</option>
                                             <option value="Kosmetik">💄 Kosmetik</option>
                                             <option value="Furniture">🪑 Furniture</option>
+                                            <option value="ATK">✏️ ATK</option>
+                                            <option value="Barang Pecah Belah">🍷 Barang Pecah Belah</option>
+                                            <option value="Peralatan Rumah Tangga">🏠 Peralatan Rumah Tangga</option>
+                                            <option value="Hobi/Mainan">🧸 Hobi/Mainan</option>
+                                            <option value="Obat & Kesehatan">💊 Obat & Kesehatan</option>
+                                            <option value="Cairan">💧 Cairan</option>
                                             <option value="Lainnya">📦 Lainnya</option>
                                         </select>
                                     </div>
@@ -792,20 +796,6 @@ const Shipping = () => {
                     </div>
                 </form>
             </div>
-
-            {/* Custom Confirmation Modal */}
-            {isConfirmOpen && (
-                <div className="confirmation-modal" onClick={() => setIsConfirmOpen(false)}>
-                    <div className="confirmation-content" onClick={(e) => e.stopPropagation()}>
-                        <h3>Konfirmasi Pengiriman</h3>
-                        <p>Apakah Anda yakin ingin membuat pengiriman ini? Total Biaya: <strong>Rp {costs.total.toLocaleString()}</strong></p>
-                        <div className="confirmation-buttons">
-                            <button className="btn-yes" onClick={handleConfirmCreate}>Iya, Buat</button>
-                            <button className="btn-no" onClick={() => setIsConfirmOpen(false)}>Batal</button>
-                        </div>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };
