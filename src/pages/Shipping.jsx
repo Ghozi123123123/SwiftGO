@@ -5,6 +5,7 @@ import { useLogistics } from '../context/LogisticsContext';
 import { INDONESIA_CITIES, INDONESIA_DISTRICTS } from '../data/indonesiaData';
 import { calculateEstimation } from '../services/estimationUtils';
 import '../styles/Shipping.css';
+import '../styles/ShipmentModal.css';
 
 const INDONESIA_PROVINCES = [
     "Aceh", "Sumatera Utara", "Sumatera Barat", "Riau", "Kepulauan Riau",
@@ -43,6 +44,7 @@ const Shipping = () => {
         return <Navigate to="/app/tracking" replace />;
     }
     const [formData, setFormData] = useState({
+        adminName: '',
         senderName: '',
         senderPhone: '',
         senderAddress: '',
@@ -86,6 +88,7 @@ const Shipping = () => {
         chargeableWeight: 0,
         total: 0
     });
+    const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -276,7 +279,7 @@ const Shipping = () => {
 
         // Form Validation
         const requiredTopFields = [
-            'senderName', 'senderPhone', 'senderAddress', 'senderCity',
+            'adminName', 'senderName', 'senderPhone', 'senderAddress', 'senderCity',
             'receiverName', 'receiverPhone', 'receiverAddress', 'receiverCity'
         ];
 
@@ -293,13 +296,13 @@ const Shipping = () => {
             return;
         }
 
-        const confirmCreate = window.confirm(`Apakah Anda yakin ingin membuat pengiriman ini?\nTotal Biaya: Rp ${costs.total.toLocaleString()}`);
-        if (!confirmCreate) return;
+        setIsConfirmModalOpen(true);
+    };
 
-
-
+    const processOrderCreation = () => {
         const newOrder = {
             orderNo: `SWG-${Math.floor(1000 + Math.random() * 9000)}`,
+            adminName: formData.adminName,
             senderName: formData.senderName,
             senderPhone: formData.senderPhone,
             senderAddress: formData.senderAddress,
@@ -331,10 +334,9 @@ const Shipping = () => {
             chargeableWeight: costs.chargeableWeight
         };
 
-
-
         addOrder(newOrder);
         showNotification(formData.payment === 'COD' ? 'Pengiriman Berhasil Dibuat! (Metode COD)' : 'Pengiriman berhasil dibuat! (Metode Non-COD)', 'success');
+        setIsConfirmModalOpen(false);
         navigate('/app/orders');
     };
 
@@ -349,6 +351,14 @@ const Shipping = () => {
                 </div>
 
                 <form onSubmit={handleSubmit}>
+                    {/* Input Admin */}
+                    <div className="shipping-card" style={{ marginBottom: '24px', padding: '16px' }}>
+                        <div className="form-group full-width" style={{ marginBottom: 0 }}>
+                            <label>Nama Admin (Petugas Input)</label>
+                            <input type="text" name="adminName" value={formData.adminName} onChange={handleChange} className="form-input" placeholder="Masukkan Nama Anda" />
+                        </div>
+                    </div>
+
                     {/* Section 1: Data Pengirim */}
                     <div className="shipping-card">
                         <div className="section-header">
@@ -795,6 +805,23 @@ const Shipping = () => {
                         <button type="submit" className="btn-confirm-order">Konfirmasi & Buat Pengiriman</button>
                     </div>
                 </form>
+
+                {/* Confirmation Modal */}
+                {isConfirmModalOpen && (
+                    <div className="confirmation-modal" onClick={() => setIsConfirmModalOpen(false)}>
+                        <div className="confirmation-content" onClick={(e) => e.stopPropagation()}>
+                            <h3>Konfirmasi Pengiriman</h3>
+                            <p style={{ marginTop: '10px', marginBottom: '20px', lineHeight: '1.5' }}>
+                                Apakah Anda yakin ingin membuat pengiriman ini?<br />
+                                Total Biaya: <strong>Rp {costs.total.toLocaleString()}</strong>
+                            </p>
+                            <div className="confirmation-buttons">
+                                <button type="button" className="btn-yes" onClick={processOrderCreation}>Iya, Buat</button>
+                                <button type="button" className="btn-no" onClick={() => setIsConfirmModalOpen(false)}>Batal</button>
+                            </div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

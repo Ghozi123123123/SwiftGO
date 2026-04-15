@@ -82,6 +82,7 @@ const createReceiptElement = (order) => {
             <!-- Middle Section -->
             <div style="display: flex; border-bottom: 2px solid #000;">
                 <div style="flex: 2; border-right: 2px solid #000; padding: 10px;">
+                    ${order.adminName ? `<div style="font-size: 12px; margin-bottom: 8px;"><strong>ADMIN: ${order.adminName.toUpperCase()}</strong></div>` : ''}
                     <div style="font-size: 14px; margin-bottom: 15px;">
                         <strong>PENGIRIM: ${order.senderName?.toUpperCase() || 'PENGIRIM'}</strong><br/>
                         ${order.senderPhone || ''}<br/>
@@ -106,15 +107,7 @@ const createReceiptElement = (order) => {
         }
                         </div>
                     </div>
-                    <div style="margin-top: 20px; display: flex; justify-content: space-between; align-items: center;">
-                        <div style="background: #000; color: white; font-weight: bold; padding: 2px 8px; border-radius: 4px;">KT</div>
-                        <div style="text-align: right; font-size: 10px; color: #555;">
-                            ${(order.items?.length > 0
-            ? [...new Set(order.items.map(i => i.itemType))].join(', ')
-            : (order.itemType || 'PAKET')
-        ).toUpperCase()}
-                        </div>
-                    </div>
+
                 </div>
                 <div style="flex: 1; display: flex; flex-direction: column;">
                     <div style="border-bottom: 2px solid #000; padding: 10px;">
@@ -201,6 +194,7 @@ const createReceiptElement = (order) => {
                         <canvas class="barcode-small" style="height: 30px; image-rendering: pixelated; image-rendering: crisp-edges; display: block;"></canvas>
                     </div>
                     <div style="font-size: 12px; display: grid; grid-template-columns: 100px 1fr; gap: 4px;">
+                        ${order.adminName ? `<strong>Admin</strong> <span>: ${order.adminName.toUpperCase().substring(0, 15)}</span>` : ''}
                         <strong>Pengirim</strong> <span>: ${order.senderName?.toUpperCase().substring(0, 15) || 'PENGIRIM'}</span>
                         <strong>Penerima</strong> <span>: ${order.receiverName?.toUpperCase().substring(0, 15) || 'PENERIMA'}</span>
                         <strong>Kota Tujuan</strong> <span>: ${(order.receiverCity || order.destination || '').toUpperCase()}</span>

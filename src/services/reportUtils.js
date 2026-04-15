@@ -68,8 +68,8 @@ export const downloadShippingReport = (orders) => {
     let y = 90;
 
     // Table Headers
-    const headers = ['No', 'Tanggal', 'Resi', 'Pengirim', 'Penerima', 'Layanan', 'Status', 'Biaya'];
-    const colX = [14, 22, 40, 68, 100, 135, 155, 177];
+    const headers = ['No', 'Tgl', 'Admin', 'Resi', 'Pengirim', 'Penerima', 'Layanan', 'Status', 'Biaya'];
+    const colX = [14, 22, 36, 56, 82, 108, 134, 154, 174];
 
     // Draw initial header
     drawTableHeader(doc, y, headers, colX);
@@ -94,17 +94,19 @@ export const downloadShippingReport = (orders) => {
         const amount = parseInt(order.amount.replace(/[^0-9]/g, '')) || 0;
 
         // Truncate names if they are too long for the column
-        const sender = (order.senderName || '-').substring(0, 15);
-        const receiver = (order.receiverName || '-').substring(0, 15);
+        const admin = (order.adminName || '-').substring(0, 10);
+        const sender = (order.senderName || '-').substring(0, 13);
+        const receiver = (order.receiverName || '-').substring(0, 13);
 
         doc.text(`${index + 1}`, colX[0], y);
         doc.text(date, colX[1], y);
-        doc.text(order.orderNo, colX[2], y);
-        doc.text(sender, colX[3], y);
-        doc.text(receiver, colX[4], y);
-        doc.text(order.service || '-', colX[5], y);
-        doc.text(order.status, colX[6], y);
-        doc.text(`Rp ${amount.toLocaleString('id-ID')}`, colX[7], y);
+        doc.text(admin, colX[2], y);
+        doc.text(order.orderNo, colX[3], y);
+        doc.text(sender, colX[4], y);
+        doc.text(receiver, colX[5], y);
+        doc.text(order.service || '-', colX[6], y);
+        doc.text(order.status, colX[7], y);
+        doc.text(`Rp ${amount.toLocaleString('id-ID')}`, colX[8], y);
 
         // Light gray line separator
         doc.setDrawColor(229, 231, 235);
